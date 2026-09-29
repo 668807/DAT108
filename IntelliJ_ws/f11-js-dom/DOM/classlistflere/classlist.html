@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="nb">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>classList</title>
+
+    <meta name="Author" content="Bjarte Wang-Kileng">
+
+    <link rel="shortcut icon" href="#">
+    <link href="../main.css" rel="stylesheet" type="text/css">
+    <script defer src="./classlist.js"></script>
+
+    <style>
+      .newstyle {
+          background-color: blue;
+          color: green;
+          padding: 1cm;
+          border: 2px solid red;
+      }
+
+      .details {
+          border: 20px groove blue
+      }
+
+      .example {
+          color: green;
+          font-size: 3em;
+          font-weight: bold;
+      }
+
+      .webdisplay {
+          background-color: red
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>classList</h1>
+    <p>All utskrift fra JavaScript-koden skrives til web konsollet.</p>
+
+    <div id="demoRoot">
+      <p data-welcome>Velkommen alle sammen.</p>
+    </div>
+
+    <div id="demoHandler">
+      <p>
+        <button type="button" data-demo="demo0"></button>
+        <button type="button" data-demo="demo1"></button>
+        <button type="button" data-demo="demo2"></button>
+        <button type="button" data-demo="demo3"></button>
+        <button type="button" data-demo="demo4"></button>
+        <button type="button" data-demo="demo5"></button>
+        <button type="button" data-demo="demo6"></button>
+        <button type="button" data-demo="demo7"></button>
+        <button type="button" data-demo="demo8"></button>
+        <button type="button" data-demo="demo9"></button>
+        <button type="button" data-demo="demo10"></button>
+        <button type="button" data-demo="demo11"></button>
+        <button type="button" data-demo="demo12"></button>
+        <button type="button" data-demo="demo13"></button>
+        <button type="button" data-demo="demo14"></button>
+      </p>
+      <pre data-viewelm></pre>
+    </div>
+  </body>
+</html>
+

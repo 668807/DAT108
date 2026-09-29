@@ -1,0 +1,88 @@
+OBLIG3 JAVASCRIPT - KARTLEGGING (28.09.2026)
+=============================================
+Frist: tirsdag 6. oktober.
+Oppgavetekst: Innleveringer\Oblig3\DAT108 Oblig3 - JavaScript.pdf
+Prosjekt: IntelliJ_ws\DAT108_Oblig3
+Status: startkode kopiert inn, ingen egen kode skrevet ennå.
+
+STARTKODE I PROSJEKTET
+----------------------
+Kopiert fra IntelliJ_ws\f12-f13-f14-js-brukejs\Konkurranse\v4\ (mest komplette versjon):
+  index.html        = v4\index.html, men <script src> endret til js/oblig3.js
+  konkurranse.css   = v4\konkurranse.css (uendret)
+  js\oblig3.js      = v4\js\v4k3.js (uendret)
+Ingen versjon av forelesningsprosjektet har JS for filteret eller for tidsfeltene.
+
+Versjonene i forelesningsprosjektet (til oppslag):
+  v1  class, #private felt, this/bind/pilfunksjon, submit, preventDefault, FormData
+  v2  insertRow/insertCell, classList, demodata, sortert innsetting (findIndex)
+  v3  required/pattern i HTML, hindre duplikat: dataset (k2), Set (k3), Map (k4), Array.find (k5)
+  v4  document.forms/elements, input-hendelse (k1), setCustomValidity + title (k2), validity (k3)
+
+KRAV FRA OPPGAVETEKSTEN
+-----------------------
+A. Ny deltager (blå ramme)
+  A1  Rød ramme på ugyldige INPUT, ingen rød ramme på gyldige.
+  A2  Startnummer gyldig hvis: har data, heltall >= 1, ikke i bruk.
+  A3  Feilmelding når mus er over feltet:
+        mangler:           «Startnummer er påkrevd»
+        ikke heltall >= 1: «Startnummer må være et heltall større eller lik 1»
+        i bruk:            «Startnummer er i bruk»
+  A4  Navn gyldig hvis: har data og riktig format.
+  A5  Feilmelding når mus er over feltet:
+        mangler:     «Navn mangler»
+        feil format: «Navn må bestå av ett eller flere delnavn skilt av mellomrom eller
+                      bindestrek og hvert delnavn må starte med stor forbokstav etterfulgt
+                      av kun små bokstaver»
+
+B. Deltagerliste (rød ramme)
+  B1  Deltagere sortert på startnummer.
+  B2  Starttid gyldig hvis: mangler, eller gyldig tid.
+  B3  Sluttid gyldig hvis: mangler, eller gyldig tid OG etter starttid.
+  B4  Ugyldig sluttid: rød ramme + «Sluttid må være etter starttid» når mus er over.
+  B5  Start og slutt gitt og sluttid gyldig: vis løpstid (format 00:12:42).
+  Merk: kan anta riktig format på tidsfelt. input-hendelse kommer først når hele
+  tidsfeltet er fylt ut; focus/focusout nevnt som mulighet (fotnote 3).
+
+C. Filter (gul ramme)
+  C1  «Mønster» er et regulært uttrykk mot startnummer ELLER navn (radioknapp).
+  C2  Aktiver filter: bare deltagere som matcher vises.
+  C3  Aktiver filter: vis aktivt filter nederst, format: Mønster "^.e" på felt "navn"
+      (uten filter: «Ingen»).
+  C4  Tøm filter: filter fjernes, alle deltagere vises igjen.
+
+Levering: oblig3_grNN.zip/.tar/.tar.gz på Canvas, gruppe 2-4. Arkivet inneholder
+  PDF (gruppeliste + skjermbilder av kjøring) og arkiv med ferdig applikasjon.
+
+STATUS I STARTKODEN (js\oblig3.js, klasse KonkurranseController)
+----------------------------------------------------------------
+Krav  Status                      Hvor
+----  --------------------------  ------------------------------------------------------
+A1    Implementert                konkurranse.css: input:invalid
+A2    Implementert (HTML)         index.html #reg: required, min="1", type="number"
+A2    Implementert (i bruk)       #validerStartnummer -> #startnummerFinnes (data-startnummer)
+A3    påkrevd: implementert       #validerStartnummer (validity.valueMissing) + title i HTML
+A3    heltall >= 1: MANGLER       ingen gren i #validerStartnummer
+A3    i bruk: DELVIS              #validerStartnummer kjøres bare ved input på feltet og
+                                  én gang i konstruktør, ikke etter at deltager legges til
+A4    Implementert (HTML)         index.html #navn: required, pattern
+A5    DELVIS, sannsynlig feil     #validerNavn: errormessage får ingen verdi når feltet er
+                                  gyldig uten customError -> setCustomValidity(undefined).
+                                  Test i nettleser. Kalles ikke i konstruktør.
+B1    Implementert                #visDeltager (findIndex + insertRow(indeks))
+B2    Via nettleser               #visDeltager lager <input type='time' step='1'>, ingen JS
+B3    MANGLER                     -
+B4    MANGLER                     (CSS-regel finnes, ingen validering)
+B5    MANGLER                     #visDeltager lager tom 5. celle
+C1    Bare HTML                   form#filter, filtertekst, radio "felt" value 0/1.
+                                  Etikett heter «Filter:», oppgaven viser «Mønster:»
+C2    MANGLER                     ingen lytter på form#filter
+C3    Bare HTML                   <div>Aktivt filter: <span>Ingen</span></div>
+C4    MANGLER (knapp finnes)      <button type="reset"> tømmer bare feltet
+-     Hjelpekode                  #fyllListe (demodata, kan fjernes i endelig løsning)
+
+ANDRE MERKNADER
+---------------
+- #visDeltager bruker innerHTML for tidsfeltene (ikke brukerdata, men avviker fra kursstil).
+- Utviklingsverdier i index.html: value="123" og value="Ole Olsen".
+- DAT108_Oblig3\.claude\ må slettes før zipping.

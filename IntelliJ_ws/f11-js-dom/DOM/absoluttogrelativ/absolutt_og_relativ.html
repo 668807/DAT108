@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="nb">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Absolutte og relative referanse</title>
+
+    <meta name="Author" content="Bjarte Wang-Kileng">
+
+    <link rel="shortcut icon" href="#">
+    <script defer src="absolutt_og_relativ.js"></script>
+    <link href="../main.css" rel="stylesheet" type="text/css">
+
+    <style>
+        fieldset {
+            border-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Absolutte og relative referanse</h1>
+
+    <form>
+        <fieldset id="c1">
+            <legend>c1</legend>
+            <p><label> Skriv noe: <input type="text" data-value placeholder="Skriv et tall" title="Kun sifre"></label></p>
+            <p><button type="button" data-button>Vis data</button></p>
+            <p>Data: <span data-show></span></p>
+        </fieldset>
+
+        <fieldset id="c2">
+            <legend>c2</legend>
+            <p><label>Skriv noe annet: <input type="text" data-value placeholder="Skriv et tall" title="Kun sifre"></label></p>
+            <p><button type="button" data-button>Vis data</button></p>
+            <p>Data: <span data-show></span></p>
+        </fieldset>
+    </form>
+</body>
+
+</html>

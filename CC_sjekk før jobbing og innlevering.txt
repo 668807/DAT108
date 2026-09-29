@@ -1,0 +1,13 @@
+  Neste gang du starter:                                                                                                                                                           
+  - Åpne Claude Code fra IntelliJ i DAT108_Oblig3 og start en ny økt, ikke /resume.                                                                                                
+  - Innleveringsmappa ligger allerede i additionalDirectories, så statusfila kan leses uten nye tillatelser.                                                                       
+  - Du kan åpne med noe som «Fortsetter på Oblig3, vil starte med A3/A5 (validering av startnummer og navn)». Da leser jeg statusfila og tar det derfra.  
+
+Sikkerhetsnett før innlevering
+
+Claude Code kan opprette .claude\settings.local.json i prosjektmappa når du velger "don't ask again" på en tillatelse. Kjør dette i oblig-mappa før du zipper:
+
+powershell
+Get-ChildItem -Recurse -Force -Include *.md, .claude
+
+Tom utskrift betyr at mappa er ren. Vi legger også inn en regel i CLAUDE.md om at Claude aldri skal opprette filer av typen .md i IntelliJ_ws.

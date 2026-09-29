@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="nb">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Referere elementer</title>
+
+    <meta name="Author" content="Bjarte Wang-Kileng">
+
+    <link rel="shortcut icon" href="#">
+    <script defer src="./domref.js"></script>
+    <link href="../main.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <h1>Referere elementer</h1>
+    <p>All utskrift fra JavaScript-koden skrives til web konsollet.</p>
+
+    <div id="demoRoot">
+      <table data-studentlist>
+        <thead>
+          <tr><th class="firstname">Fornavn</th><th class="lastname">Etternavn</th><th>Alder</th><th>Telefon</th></tr>
+        </thead>
+        <tbody>
+          <tr data-userid="2"><td class="firstname">Ole</td><td class="lastname">Olsen</td><td>23</td><td>11223344</td></tr>
+          <tr data-userid="5"><td class="firstname">Anne</td><td class="lastname">Annesen</td><td>25</td><td>12345678</td></tr>
+        </tbody>
+      </table>
+
+      <form action="behandledata" method="POST">
+        <label>Navn: <input type="text" value="Noe data"></label>
+        <button type="submit">Send</button>
+        <button type="reset">Nullstill</button>
+      </form>
+    </div>
+
+    <div id="demoHandler">
+      <p>
+        <button type="button" data-demo="demo0"></button>
+        <button type="button" data-demo="demo1"></button>
+        <button type="button" data-demo="demo2"></button>
+        <button type="button" data-demo="demo3"></button>
+        <button type="button" data-demo="demo4"></button>
+        <button type="button" data-demo="demo5"></button>
+        <button type="button" data-demo="demo6"></button>
+        <button type="button" data-demo="demo7"></button>
+        <button type="button" data-demo="demo8"></button>
+        <button type="button" data-demo="demo9"></button>
+        <button type="button" data-demo="demo10"></button>
+        <button type="button" data-demo="demo11"></button>
+        <button type="button" data-demo="demo12"></button>
+        <button type="button" data-demo="demo13"></button>
+        <button type="button" data-demo="demo14"></button>
+        <button type="button" data-demo="demo15"></button>
+        <button type="button" data-demo="demo16"></button>
+        <button type="button" data-demo="demo17"></button>
+        <button type="button" data-demo="demo18"></button>
+        <button type="button" data-demo="demo19"></button>
+        <button type="button" data-demo="demo20"></button>
+        <button type="button" data-demo="demo21"></button>
+        <button type="button" data-demo="demo22"></button>
+        <button type="button" data-demo="demo23"></button>
+        <button type="button" data-demo="demo24"></button>
+        <button type="button" data-demo="demo25"></button>
+        <button type="button" data-demo="demo26"></button>
+        <button type="button" data-demo="demo27"></button>
+        <button type="button" data-demo="demo28"></button>
+        <button type="button" data-demo="demo29"></button>
+        <button type="button" data-demo="demo30"></button>
+      </p>
+      <pre data-viewelm></pre>
+    </div>
+  </body>
+</html>
+

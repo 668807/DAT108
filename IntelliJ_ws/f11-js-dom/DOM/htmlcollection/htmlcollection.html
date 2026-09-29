@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="nb">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>HTMLCollection</title>
+
+    <meta name="Author" content="Bjarte Wang-Kileng">
+
+    <link rel="shortcut icon" href="#">
+    <link href="../main.css" rel="stylesheet" type="text/css">
+    <script defer src="./htmlcollection.js"></script>
+</head>
+
+<body>
+    <h1>HTMLCollection</h1>
+
+    <p>Flere DOM metoder returnerer liste av elementer som en
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection">HTMLCollection</a>.
+        Dette er levende datastruktur som oppdateres når den underliggednedokumentstrukturen oppdateres.</p>
+
+    <p>Metode <var>querySelectorAll</var> returnerer en statisk
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/NodeList">NodeList</a>.
+        Denne endrer seg ikke om den underliggednedokumentstrukturen oppdateres.</p>
+
+    <p>Utskrift fra JavaScript-koden skrives til web konsollet.</p>
+
+    <div id="root">
+        <p><button type="button">Legg til tall</button></p>
+        <table>
+        </table>
+    </div>
+</body>
+
+</html>
