@@ -233,8 +233,8 @@ framfor å gjette.
 **Oblig3 JavaScript**, prosjekt `IntelliJ_ws\DAT108_Oblig3`, frist
 tirsdag 6. oktober.
 Oppgavetekst: Innleveringer\Oblig3\DAT108 Oblig3 - JavaScript.pdf
-Kartlegging/statusfil: Innleveringer\Oblig3\Oblig3_kartlegging.txt
-Status: startkode kopiert inn (v4), koding ikke startet.
+Statusfil: Innleveringer\Oblig3\Oblig3_status.txt
+Status: se statusfila (del A nesten ferdig per 30.09).
 
 ## Statusfiler                                                                                                                                                                 
 Hver oblig har én statusfil (`.txt`) i `Innleveringer\ObligN\` med
@@ -242,3 +242,11 @@ krav, status og merknader. Stien står under «Aktiv oblig».
 	- Les statusfila før første svar som gjelder obligen.
 	- Oppdater den bare når studenten ber om det.
 	- Statusfila er arbeidsnotat, ikke kilde: ved konflikt gjelder oppgavetekst og koden.
+	
+Øktslutt: Når studenten skriver «oppsummer økt», "skal avslutte nå/ta en pause" eller lignende, oppdateres statusfila                                                                                                                                                                                                                                           
+for aktiv oblig med disse seksjonene (erstatt gammelt innhold i dem):                                                                                                                                                                                                                                            
+	- FREMDRIFT   :  krav-ID fra kravlista + status (ferdig/delvis/mangler), med fil:linje der det er relevant                                                                                                                                                                                                                                                                
+	- ÅPNE FEIL   :  kjente feil i studentens kode som ikke er rettet ennå 
+	- NESTE STEG  :  det konkrete neste steget, slik at en ny økt kan fortsette direkte                                                                                                                                                                                                                                                                                
+	- LÆRT        :  korte eksamensrelevante regler fra økta (én linje hver)                                                                                                                                                                                                                                          
+Etterpå anbefales /clear. Ny økt leser statusfila og fortsetter fra NESTE STEG.  

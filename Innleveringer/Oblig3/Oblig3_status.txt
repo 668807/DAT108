@@ -1,0 +1,115 @@
+OBLIG3 JAVASCRIPT - STATUS (sist oppdatert 30.09.2026)
+======================================================
+Frist: tirsdag 6. oktober.
+Oppgavetekst: Innleveringer\Oblig3\DAT108 Oblig3 - JavaScript.pdf
+Prosjekt: IntelliJ_ws\DAT108_Oblig3
+Status: del A nesten ferdig (én kjent feil), del B og C ikke startet.
+
+STARTKODE I PROSJEKTET
+----------------------
+Kopiert fra IntelliJ_ws\f12-f13-f14-js-brukejs\Konkurranse\v4\ (mest komplette versjon):
+  index.html        = v4\index.html, men <script src> endret til js/oblig3.js
+  konkurranse.css   = v4\konkurranse.css (uendret)
+  js\oblig3.js      = v4\js\v4k3.js (videre bearbeidet av studenten)
+Ingen versjon av forelesningsprosjektet har JS for filteret eller for tidsfeltene.
+
+Versjonene i forelesningsprosjektet (til oppslag):
+  v1  class, #private felt, this/bind/pilfunksjon, submit, preventDefault, FormData
+  v2  insertRow/insertCell, classList, demodata, sortert innsetting (findIndex)
+  v3  required/pattern i HTML, hindre duplikat: dataset (k2), Set (k3), Map (k4), Array.find (k5)
+  v4  document.forms/elements, input-hendelse (k1), setCustomValidity + title (k2), validity (k3)
+
+KRAV FRA OPPGAVETEKSTEN
+-----------------------
+A. Ny deltager (blå ramme)
+  A1  Rød ramme på ugyldige INPUT, ingen rød ramme på gyldige.
+  A2  Startnummer gyldig hvis: har data, heltall >= 1, ikke i bruk.
+  A3  Feilmelding når mus er over feltet:
+        mangler:           «Startnummer er påkrevd»
+        ikke heltall >= 1: «Startnummer må være et heltall større eller lik 1»
+        i bruk:            «Startnummer er i bruk»
+  A4  Navn gyldig hvis: har data og riktig format.
+  A5  Feilmelding når mus er over feltet:
+        mangler:     «Navn mangler»
+        feil format: «Navn må bestå av ett eller flere delnavn skilt av mellomrom eller
+                      bindestrek og hvert delnavn må starte med stor forbokstav etterfulgt
+                      av kun små bokstaver»
+
+B. Deltagerliste (rød ramme)
+  B1  Deltagere sortert på startnummer.
+  B2  Starttid gyldig hvis: mangler, eller gyldig tid.
+  B3  Sluttid gyldig hvis: mangler, eller gyldig tid OG etter starttid.
+  B4  Ugyldig sluttid: rød ramme + «Sluttid må være etter starttid» når mus er over.
+  B5  Start og slutt gitt og sluttid gyldig: vis løpstid (format 00:12:42).
+  Merk: kan anta riktig format på tidsfelt. input-hendelse kommer først når hele
+  tidsfeltet er fylt ut; focus/focusout nevnt som mulighet (fotnote 3).
+
+C. Filter (gul ramme)
+  C1  «Mønster» er et regulært uttrykk mot startnummer ELLER navn (radioknapp).
+  C2  Aktiver filter: bare deltagere som matcher vises.
+  C3  Aktiver filter: vis aktivt filter nederst, format: Mønster "^.e" på felt "navn"
+      (uten filter: «Ingen»).
+  C4  Tøm filter: filter fjernes, alle deltagere vises igjen.
+
+Levering: oblig3_grNN.zip/.tar/.tar.gz på Canvas, gruppe 2-4. Arkivet inneholder
+  PDF (gruppeliste + skjermbilder av kjøring) og arkiv med ferdig applikasjon.
+
+FREMDRIFT (js\oblig3.js, klasse KonkurranseController)
+------------------------------------------------------
+Krav  Status    Hvor / merknad
+----  --------  ---------------------------------------------------------------
+A1    ferdig    konkurranse.css: input:invalid
+A2    ferdig    HTML (required, min="1", type="number") + oblig3.js:68 #startnummerFinnes
+A3    delvis    oblig3.js:64-79 alle tre meldinger finnes (badInput/rangeUnderflow/
+                stepMismatch, valueMissing, i bruk). Feil rekkefølge i #registrer, se ÅPNE FEIL.
+A4    ferdig    HTML: required + pattern
+A5    ferdig    oblig3.js:86-100, kalles i konstruktør (oblig3.js:37). Rest på linje 94.
+B1    ferdig    oblig3.js:107-126 #visDeltager (findIndex + insertRow(indeks))
+B2    ferdig    via nettleser, <input type='time' step='1'> (oblig3.js:122-123)
+B3    mangler   -
+B4    mangler   CSS-regel finnes, ingen validering
+B5    mangler   #visDeltager lager tom 5. celle (oblig3.js:124)
+C1    bare HTML form#filter, filtertekst, radio "felt" value 0/1. Etikett «Filter:»,
+                oppgaven viser «Mønster:»
+C2    mangler   ingen lytter på form#filter
+C3    bare HTML <div>Aktivt filter: <span>Ingen</span></div>
+C4    mangler   <button type="reset"> tømmer bare feltet
+
+ÅPNE FEIL
+---------
+- oblig3.js:54-56 #registrer: #validerStartnummer kjøres FØR reset(). reset() setter
+  verdien tilbake, men nullstiller ikke setCustomValidity -> feltet kan stå med
+  «Startnummer er i bruk» etter registrering. Når value-attributtene i HTML fjernes,
+  må også navn-feltet valideres på nytt etter reset.
+- oblig3.js:94 `else { (target.validity.customError)` - uttrykk uten effekt, rest av
+  påbegynt else if. Rydd bort.
+- Stil: manglende semikolon oblig3.js:71, 73, 166. Punktum til slutt i meldingen
+  på linje 71 (oppgaven har ikke punktum). console.log på linje 65 og 87.
+- Stil: formelement/tabellelement (oblig3.js:165-166) er globale konstanter.
+- Stil: #visDeltager bruker innerHTML for tidsfeltene (oblig3.js:122-123), avviker fra
+  kursstil (ikke brukerdata, men bør byttes ut). Tas med i del B.
+
+NESTE STEG
+----------
+1. Rett rekkefølgen validering/reset() i #registrer, test i nettleser: registrer nytt
+   nummer, hold mus over startnummerfeltet, sjekk ramme og tooltip.
+2. Rydd linje 94 og stilpunktene over.
+3. Start del B: B3/B4 (sluttid etter starttid, setCustomValidity + title på
+   sluttid-feltet), deretter B5 (løpstid i 5. celle).
+
+LÆRT
+----
+- reset() setter feltverdier tilbake til value-attributtet, men nullstiller IKKE
+  setCustomValidity; valider på nytt etter reset().
+- validity-egenskaper: valueMissing, patternMismatch, badInput, rangeUnderflow,
+  stepMismatch, customError.
+- setCustomValidity("") nullstiller; setCustomValidity(undefined) gir teksten "undefined".
+- insertRow(-1) legger rekka sist; findIndex gir -1 når ingen matcher, så
+  insertRow(findIndex(...)) håndterer "større enn alle" uten spesialtilfelle.
+- Semikolon skrives alltid ut; ikke stol på automatisk semikoloninnsetting (ASI).
+
+ANDRE MERKNADER
+---------------
+- #fyllListe (demodata) kan fjernes i endelig løsning.
+- Utviklingsverdier i index.html: value="123" og value="Ole Olsen" fjernes før levering.
+- DAT108_Oblig3\.claude\ må slettes før zipping.

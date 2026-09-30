@@ -2,6 +2,10 @@ input:invalid {
     border-color: red;
 }
 
+input:invalid:focus {
+    outline-color: red;
+}
+
 #container {
     display: grid;
     grid-gap: 10px;

@@ -34,6 +34,7 @@ class KonkurranseController {
 
         this.#fyllListe();
         this.#validerStartnummer(startnummerInput);
+        this.#validerNavn(navnInput);
     }
 
     /**
@@ -51,6 +52,7 @@ class KonkurranseController {
         };
 
         this.#visDeltager(deltager);
+        this.#validerStartnummer(event.target.elements["startnummer"]);
         event.target.reset();
     }
 
@@ -65,6 +67,8 @@ class KonkurranseController {
         let errormessage;
         if (this.#startnummerFinnes(target.valueAsNumber)) {
             errormessage = "Startnummer er i bruk";
+        } else if (target.validity.badInput || target.validity.rangeUnderflow || target.validity.stepMismatch ) {
+            errormessage = "Startnummer må være et heltall større eller lik 1."
         } else if (target.validity.valueMissing) {
             errormessage = "Startnummer er påkrevd"
         } else {
@@ -82,16 +86,17 @@ class KonkurranseController {
     #validerNavn(target) {
         console.log(target.validity);
 
-        let errormessage
+        let errormessage;
         if (target.validity.patternMismatch) {
             errormessage = "Navn må bestå av ett eller flere delnavn skilt av mellomrom eller bindestrek og hvert delnavn må starte med stor forbokstav etterfulgt av kun små bokstaver";
         } else if (target.validity.valueMissing) {
             errormessage = "Navn mangler";
-        } else if (target.validity.customError) {
+        } else { (target.validity.customError)
             errormessage = "";
         }
+
         target.setCustomValidity(errormessage);
-        target.title = errormessage; // For Chromium baserte nettlesere
+        target.title = errormessage; // For Chromium baserte nettleser
     }
 
     /**
