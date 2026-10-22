@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="simple.css">
+  </head>
+  <body>
+	<h4>Bokliste</h4>
+	<a href="sokeside.html">Gjør et boksøk</a><br>
+	<a href="alleboker">Se listen av alle bøker</a><br>
+	<table><tr>
+			<th align="left">Tittel</th>
+			<th align="left">Forfatter</th>
+			<th>År</th>
+			<th align="left">Genre</th>
+		</tr>
+		<tr th:each="bok : ${boker}">
+			<td align="left" th:text="${bok.tittel}"></td>
+			<td align="left" th:text="${bok.forfatter}"></td>
+			<td th:text="${bok.utgivelsesaar}"></td>
+			<td align="left" th:text="${bok.genre}"></td>
+		</tr>
+	</table>
+	
+  </body>
+</html>

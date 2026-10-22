@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="simple.css">
+<title>Tilbakemelding</title>
+</head>
+
+<body>
+	Tilbakemelding!
+	<!--/*
+	Her ser vi et par nye Thymeleaf-greier og ${}-uttrykk:
+	    PS! Dette er en kodekommentar som fjernes fra HTML-en.
+	    - <th:block ..> brukes hvis teksten skal plasseres rett i HTML-en
+		- ${param.fodselsaar} betyr request-parameteren med navn fodselsaar
+		- ${gyldig ? "gyldig" : "ikke gyldig"} er betinget-operatoren (som i Java)
+	*/-->
+
+	<br> Parameteren fodselsaar = #<th:block th:text="${param.fodselsaar}" />#
+	<br> Fødselsåret er <th:block th:text="${gyldig ? 'gyldig' : 'ikke gyldig'}" />
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Logg inn</title>
+	<link rel="stylesheet" href="css/simple.css">
+</head>
+
+<body>
+	<p style="color:red" th:text="${redirectMelding}"></p>
+	
+	<form action="/logginn" method="post">
+		<fieldset><legend>Logg Inn</legend>
+		
+			Brukernavn: <input type="text" name="brukernavn"/><br>
+			<input type="submit" value="Logg inn"/><br>
+			
+		</fieldset>
+	</form>
+</body>
+</html>
+

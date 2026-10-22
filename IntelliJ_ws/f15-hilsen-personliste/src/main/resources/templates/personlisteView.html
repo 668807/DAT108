@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="simple.css">
+</head>
+<body><!--/* ${personliste} i linjen under er et uttrykk som henter attributten
+	     "personliste" fra modellen (den vi la til med model.addAttribute()) */-->
+	<h4>Personliste - Generert av Java/Thymeleaf på webserveren</h4>
+	<table id="persontabellen">
+		<tr>
+			<th style="text-align: center;">Fornavn</th>
+			<th style="text-align: center;">Etternavn</th>
+			<th>Alder</th>
+		</tr>
+		<tr th:each="p : ${personliste}">
+			<td th:text="${p.firstName}" style="text-align: center;">x</td>
+			<td th:text="${p.lastName}" style="text-align: center;">x</td>
+			<td th:text="${p.alder}">x</td>
+        </tr>
+	</table>
+</body>
+</html>

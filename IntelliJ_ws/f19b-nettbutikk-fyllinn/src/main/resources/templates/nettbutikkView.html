@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Nettbutikken</title>
+	<link rel="stylesheet" href="css/simple.css">
+</head>
+
+<body>
+    <p th:text="|Du er innlogget som ${session.brukernavn}|">Per</p>
+    <p th:text="|Totalt i handlekurv: kr ${session.handlekurv?.total}|">123,50</p>
+
+    <fieldset><legend>Din handlekurv</legend>
+	<table>
+        <tr><th>Vare</th><th>Pris</th><th>Antall</th><th>Beløp</th><th></th></tr>
+        <tr th:each="rad : ${session.handlekurv?.varer}">
+			<td th:text="${rad.vare.navn}"></td>
+            <td th:text="${rad.vare.pris}"></td>
+            <td th:text="${rad.antall}"></td>
+            <td th:text="${rad.vare.pris * rad.antall}"></td>
+
+            <form action="fjernfrakurv" method="post">
+                <input type="hidden" name="varenr" th:value="${rad.vare.nr}"></td>
+                <td><button>Fjern fra handlekurv</button></td>
+            </form>
+		</tr>
+	</table><br>
+    </fieldset>
+
+    <fieldset><legend>Handle</legend>
+    <table>
+        <tr><th>Vare</th><th>Pris</th><th>Antall</th><th></th></tr>
+        <tr th:each="vare : ${varer}">
+            <td th:text="${vare.navn}"></td>
+            <td th:text="${vare.pris}"></td>
+
+            <form action="leggikurv" method="post">
+                <input type="hidden" name="varenr" th:value="${vare.nr}"></td>
+                <td><input type="number" name="antall" min="1" step="1" value="1"></td>
+                <td><button>Legg i handlekurv</button></td>
+            </form>
+        </tr>
+    </table>
+    </fieldset>
+
+	<form action="loggut" method="post">
+        <p><input type="submit" value="Logg ut" /></p>
+	</form>
+
+</body>
+</html>

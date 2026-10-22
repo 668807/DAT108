@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body> <!--/* ${navn} i linjen under er et uttrykk som henter attributten
+	         "person" fra modellen (den vi la til med model.addAttribute()) */-->
+	<h1 th:text ="'Hallo på do, ' + ${navn}"></h1>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="simple.css">
+<title>Personskjema</title>
+</head>
+
+<body>
+	<h3>Hei. Tast inn informasjon om personen</h3>
+	
+	<p style="color:red;" th:each="feilmelding : ${feilmeldinger}"
+                  th:text="${feilmelding}" />
+
+	<form action="sjekkPerson" method="get">
+		Navn <input type="text" name="navn" th:value="${person?.navn}"><br>
+		Mobil <input type="text" name="mobil" th:value="${person?.mobil}"><br>
+		Høyde i cm <input type="number" name="hoydecm" th:value="${person?.hoydecm}"><br>
+		Fødselsdato	<input type="date" name="fdato" th:value="${person?.fdato}"><br>
+		<input type="submit" value="Send!"/>
+	</form>
+	
+</body>
+</html>
