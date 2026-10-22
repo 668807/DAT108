@@ -1,13 +1,45 @@
-  Neste gang du starter:                                                                                                                                                           
-  - Åpne Claude Code fra IntelliJ i DAT108_Oblig3 og start en ny økt, ikke /resume.                                                                                                
-  - Innleveringsmappa ligger allerede i additionalDirectories, så statusfila kan leses uten nye tillatelser.                                                                       
-  - Du kan åpne med noe som «Fortsetter på Oblig3, vil starte med A3/A5 (validering av startnummer og navn)». Da leser jeg statusfila og tar det derfra.  
+CC-SJEKK FØR JOBBING OG INNLEVERING (gjelder alle obliger)
+==========================================================
 
-Sikkerhetsnett før innlevering
+FØR JOBBING (ny økt)
+--------------------
+- Åpne Claude Code fra IntelliJ i prosjektet for aktiv oblig (se «Aktiv oblig» i CLAUDE.md)
+  og start en ny økt, ikke /resume.
+- Innleveringsmappa ligger i additionalDirectories, så statusfila kan leses uten nye tillatelser.
+- Åpningsmelding, f.eks.: «Fortsetter på ObligN. Les statusfila og fortsett fra NESTE STEG.»
+  Claude leser da Innleveringer\ObligN\ObligN_status.txt og tar det derfra.
+- Ved øktslutt: «oppsummer økt» -> statusfila oppdateres. Deretter /clear.
 
-Claude Code kan opprette .claude\settings.local.json i prosjektmappa når du velger "don't ask again" på en tillatelse. Kjør dette i oblig-mappa før du zipper:
+FØR INNLEVERING: VELG HVA SOM ZIPPES (i stedet for å rense prosjektmappa)
+------------------------------------------------------------------------
+Lag en ny, tom mappe ObligN_grNN\ og KOPIER inn bare det som skal leveres. Da kommer ingen
+verktøyfiler med, og prosjektet i IntelliJ_ws\ kan stå urørt.
 
-powershell
-Get-ChildItem -Recurse -Force -Include *.md, .claude
+Ta med (Maven/Spring Boot-prosjekt, Oblig4 og senere):
+  src\            all kildekode, maler, statiske filer og tester
+  pom.xml
+  mvnw, mvnw.cmd, .mvn\     (Maven Wrapper, gjør at prosjektet kan kjøres uten installert Maven)
+  .gitignore, .gitattributes   (valgfritt, ufarlig)
+  + PDF-en (og andre filer oppgaven krever)
 
-Tom utskrift betyr at mappa er ren. Vi legger også inn en regel i CLAUDE.md om at Claude aldri skal opprette filer av typen .md i IntelliJ_ws.
+Ta med (vanlig IntelliJ-prosjekt uten Maven, Oblig1-3):
+  src\ (og eventuelle web-/ressursmapper oppgaven bruker) + det oppgaven ellers krever
+
+Ta IKKE med:
+  .claude\        Claude Code-innstillinger (opprettes ved «don't ask again» på en tillatelse)
+  .idea\          IntelliJ-oppsett. Inneholder også claudeCodeTabState.xml fra Claude-pluginen
+  target\ / out\  kompilerte filer, lages på nytt ved bygging
+  *.md            notater/README fra Claude eller Spring Initializr (HELP.md)
+  *.iml           IntelliJ-modulfil (ikke nødvendig for Maven-prosjekt)
+
+Sikkerhetsnett: kjør i den NYE mappa (ikke i IntelliJ_ws) før du zipper (PowerShell):
+  Get-ChildItem -Recurse -Force -Include *.md, .claude, .idea, target
+Tom utskrift = klar til zipping.
+
+Deretter:
+- Zip mappa -> ObligN_grNN.zip (navn etter oppgaveteksten).
+- Valgfri kontroll: pakk ut et annet sted, åpne i IntelliJ og kjør. Virker det, er alt med.
+- Canvas: meld deg inn i riktig gruppesett FØR opplasting (nytt gruppesett for hver oblig).
+
+Regelen om at Claude aldri skal opprette .md-filer, notater eller .claude-innhold i
+IntelliJ_ws\ står i CLAUDE.md.

@@ -1,9 +1,15 @@
-OBLIG3 JAVASCRIPT - STATUS (sist oppdatert 30.09.2026)
+OBLIG3 JAVASCRIPT - STATUS (sist oppdatert 07.10.2026)
 ======================================================
-Frist: tirsdag 6. oktober.
+Frist: søndag 11. oktober (utsatt fra tirsdag 6. oktober, gjelder alle).
 Oppgavetekst: Innleveringer\Oblig3\DAT108 Oblig3 - JavaScript.pdf
 Prosjekt: IntelliJ_ws\DAT108_Oblig3
-Status: del A nesten ferdig (én kjent feil), del B og C ikke startet.
+Status: del A og B FERDIG og testet mot PDF (bare opprydding før levering gjenstår).
+Del C ikke startet.
+
+DELINNDELING (følger rekkefølgen i PDF-en)
+  A = Legg til deltager (blå ramme)          PDF s. 2-3
+  B = Deltagerliste med tider (rød ramme)    PDF s. 3-4
+  C = Filter (gul ramme)                     PDF s. 4-5
 
 STARTKODE I PROSJEKTET
 ----------------------
@@ -43,6 +49,13 @@ B. Deltagerliste (rød ramme)
   B5  Start og slutt gitt og sluttid gyldig: vis løpstid (format 00:12:42).
   Merk: kan anta riktig format på tidsfelt. input-hendelse kommer først når hele
   tidsfeltet er fylt ut; focus/focusout nevnt som mulighet (fotnote 3).
+  Fra PDF-gjennomgang 30.09:
+  - Sluttid avhenger av både start og slutt: endring i starttid må også kunne gjøre
+    sluttid gyldig/ugyldig. Feilmeldingen ligger på sluttid-feltet.
+  - «Etter» betyr strengt etter: lik tid er ugyldig.
+  - Uspesifisert: sluttid fylt ut, starttid mangler. Velg tolkning, skriv den i PDF-en.
+  - B5: løpstid må tømmes igjen hvis sluttid blir ugyldig eller fjernes. To sifre
+    også på timer (00:12:42).
 
 C. Filter (gul ramme)
   C1  «Mønster» er et regulært uttrykk mot startnummer ELLER navn (radioknapp).
@@ -50,6 +63,13 @@ C. Filter (gul ramme)
   C3  Aktiver filter: vis aktivt filter nederst, format: Mønster "^.e" på felt "navn"
       (uten filter: «Ingen»).
   C4  Tøm filter: filter fjernes, alle deltagere vises igjen.
+  Fra PDF-gjennomgang 30.09:
+  - Illustrasjon 6: filtrerte rader beholder innskrevne tider. Rader må skjules, ikke
+    slettes, ellers går tidene tapt ved Tøm filter.
+  - C3 viser feltnavnet («navn»/«startnummer»), men radioknappene har value 0/1
+    (index.html:33-34). Må løses enten i HTML eller i JS.
+  - Uspesifisert: ny deltager mens filter er aktivt (vises eller ikke?), og ugyldig
+    regulært uttrykk (new RegExp("(") kaster SyntaxError). Ta et bevisst valg.
 
 Levering: oblig3_grNN.zip/.tar/.tar.gz på Canvas, gruppe 2-4. Arkivet inneholder
   PDF (gruppeliste + skjermbilder av kjøring) og arkiv med ferdig applikasjon.
@@ -58,17 +78,29 @@ FREMDRIFT (js\oblig3.js, klasse KonkurranseController)
 ------------------------------------------------------
 Krav  Status    Hvor / merknad
 ----  --------  ---------------------------------------------------------------
-A1    ferdig    konkurranse.css: input:invalid
+A1    ferdig    konkurranse.css:1 input:invalid
 A2    ferdig    HTML (required, min="1", type="number") + oblig3.js:68 #startnummerFinnes
-A3    delvis    oblig3.js:64-79 alle tre meldinger finnes (badInput/rangeUnderflow/
-                stepMismatch, valueMissing, i bruk). Feil rekkefølge i #registrer, se ÅPNE FEIL.
-A4    ferdig    HTML: required + pattern
-A5    ferdig    oblig3.js:86-100, kalles i konstruktør (oblig3.js:37). Rest på linje 94.
-B1    ferdig    oblig3.js:107-126 #visDeltager (findIndex + insertRow(indeks))
-B2    ferdig    via nettleser, <input type='time' step='1'> (oblig3.js:122-123)
-B3    mangler   -
-B4    mangler   CSS-regel finnes, ingen validering
-B5    mangler   #visDeltager lager tom 5. celle (oblig3.js:124)
+A3    ferdig    oblig3.js:65-79, meldinger ordrett som PDF. #registrer (oblig3.js:54-57)
+                rettet 05.10: visDeltager -> reset() -> validerStartnummer -> validerNavn.
+                Testet: 200 registrert -> feltet 123 uten rød ramme; tomme felt etter
+                reset gir «Startnummer er påkrevd» / «Navn mangler».
+A4    ferdig    HTML: required + pattern (index.html:24, fra startkoden v4)
+A5    ferdig    oblig3.js:86-98, else-grenen ryddet (linje 93-95)
+B1    ferdig*   oblig3.js:105-142 #visDeltager (findIndex + insertRow(indeks))
+                * sortering fra startkoden (v2/v4)
+B2    ferdig*   nettleserens tidsfelt + input:invalid (halvfylt felt -> badInput,
+                rød ramme og nettleserens egen melding; testet 07.10)
+B3    ferdig    oblig3.js:151-171 #validerTider. beggeUtfylt (linje 155) +
+                `beggeUtfylt && slutt <= start` (linje 159). Begge tidsfelt har
+                input-lytter som kaller #validerTider (linje 131-139, closure).
+B4    ferdig    setCustomValidity + title på sluttElement (linje 169-170).
+                Testet: før/lik -> rød ramme, etter -> ok, endring i start oppdaterer slutt.
+B5    ferdig    else if (beggeUtfylt) -> lopstidElement.textContent =
+                this.#formaterTid(slutt - start). Hjelpemetoder #toSifre (linje 179) og
+                #formaterTid (linje 192). Testet: 14:22:30-14:35:12 -> 00:12:42,
+                09:00:00-10:05:07 -> 01:05:07, cellen tømmes ved ugyldig/tom sluttid.
+                Valgt tolkning (skal stå i PDF-en): sluttid uten starttid regnes som
+                gyldig, siden det ikke finnes noen starttid å sammenligne med.
 C1    bare HTML form#filter, filtertekst, radio "felt" value 0/1. Etikett «Filter:»,
                 oppgaven viser «Mønster:»
 C2    mangler   ingen lytter på form#filter
@@ -77,39 +109,84 @@ C4    mangler   <button type="reset"> tømmer bare feltet
 
 ÅPNE FEIL
 ---------
-- oblig3.js:54-56 #registrer: #validerStartnummer kjøres FØR reset(). reset() setter
-  verdien tilbake, men nullstiller ikke setCustomValidity -> feltet kan stå med
-  «Startnummer er i bruk» etter registrering. Når value-attributtene i HTML fjernes,
-  må også navn-feltet valideres på nytt etter reset.
-- oblig3.js:94 `else { (target.validity.customError)` - uttrykk uten effekt, rest av
-  påbegynt else if. Rydd bort.
-- Stil: manglende semikolon oblig3.js:71, 73, 166. Punktum til slutt i meldingen
-  på linje 71 (oppgaven har ikke punktum). console.log på linje 65 og 87.
-- Stil: formelement/tabellelement (oblig3.js:165-166) er globale konstanter.
-- Stil: #visDeltager bruker innerHTML for tidsfeltene (oblig3.js:122-123), avviker fra
-  kursstil (ikke brukerdata, men bør byttes ut). Tas med i del B.
+Ingen funksjonelle feil i del A eller B. Gjenstår til opprydding før levering:
+- console.log(target.validity) på oblig3.js:66 og 87 (beholdes bevisst under
+  utvikling, fjernes til slutt).
+- value="123" og value="Ole Olsen" i index.html:18, 21 fjernes.
+- Kosmetisk: mellomrom før ")" på oblig3.js:70. Kommentaren
+  "// For Chromium baserte nettlesere" mangler på oblig3.js:170.
+- Vurder trim() på navn i #registrer (oblig3.js:51): pattern tillater mellomrom
+  før/etter navnet, og " Per Persen" vil ikke treffe filteret ^.e i del C.
+- Stil: formelement/tabellelement (oblig3.js:237-238) er globale konstanter
+  (samme som startkoden, lav prioritet).
 
 NESTE STEG
 ----------
-1. Rett rekkefølgen validering/reset() i #registrer, test i nettleser: registrer nytt
-   nummer, hold mus over startnummerfeltet, sjekk ramme og tooltip.
-2. Rydd linje 94 og stilpunktene over.
-3. Start del B: B3/B4 (sluttid etter starttid, setCustomValidity + title på
-   sluttid-feltet), deretter B5 (løpstid i 5. celle).
+0. Frist søn 11.10. Avklar gruppe/levering (alene krever avtale).
+1. Del C (filter), PDF s. 4-5. Avklart 07.10:
+   - RegExp (new RegExp(...), .test(...)) står IKKE i slides eller demoprosjekter,
+     men oppgaven krever regulært uttrykk. Flagges i gjennomgangen.
+   - Radioknappenes value 0/1 = celleindeks (cells[0] startnummer, cells[1] navn).
+     Visning av aktivt filter trenger feltnavnet («startnummer»/«navn»).
+   - Skjul rader med classList.add/remove('hidden') (klassen finnes i CSS). Ikke
+     slett: tidene går tapt, og #startnummerFinnes leter i tabellen.
+   - Valg som må tas og skrives i PDF-en: ny deltager mens filter er aktivt, og
+     ugyldig regulært uttrykk.
+   Forslag til rekkefølge: submit-lytter på form#filter -> les mønster og felt ->
+   skjul/vis rader -> vis aktivt filter -> reset-lytter («Tøm filter») -> kanttilfeller.
+2. Skjermbilder til PDF: bruk Klippeverktøy med 5 s forsinkelse for å få med
+   tooltip (tastetrykk skjuler den). Ta bilder av feilmeldingene i A og B, løpstid,
+   og filter når C er ferdig.
+3. Opprydding (se ÅPNE FEIL), fjern #fyllListe, PDF med gruppeliste og tolkninger,
+   zip som oblig3_grNN. Slett DAT108_Oblig3\.claude\ før zipping.
 
 LÆRT
 ----
-- reset() setter feltverdier tilbake til value-attributtet, men nullstiller IKKE
-  setCustomValidity; valider på nytt etter reset().
+- Valider når BÅDE feltverdi og tabell er i endelig tilstand: visDeltager ->
+  reset() -> valider. Validering før reset() vurderer en verdi som forsvinner.
+- reset() og element.value = ... utløser IKKE input-hendelsen.
+- reset() setter felt tilbake til value-attributtet (eller tomt), men nullstiller
+  IKKE setCustomValidity eller title.
+- Innebygd validitet (required, min, pattern, type) oppdateres automatisk;
+  setCustomValidity og title blir stående til du endrer dem.
+- title gir meldingen ved musepeker (Chromium); nettleserens egen melding vises bare
+  som boble ved submit.
+- else { errormessage = ""; } er nullstillingen. Uten den: setCustomValidity(undefined)
+  gir teksten "undefined" og feltet blir alltid ugyldig.
+- Et uttrykk alene i en blokk, f.eks. { (x.customError) ... }, er død kode. En betingelse
+  må stå i if (...) / else if (...).
 - validity-egenskaper: valueMissing, patternMismatch, badInput, rangeUnderflow,
-  stepMismatch, customError.
-- setCustomValidity("") nullstiller; setCustomValidity(undefined) gir teksten "undefined".
+  stepMismatch, customError. customError sier bare noe om ditt eget forrige kall.
+- formData.get(...) gir alltid streng; Number(...) for tall.
+- insertCell(-1) returnerer cellen. Kjedet .textContent/.innerHTML mister referansen;
+  lagre i const først for å bruke den senere.
+- innerHTML: aldri med brukerdata (XSS). Fast streng brukes av foreleser selv (slide 67).
+- Slide 67 har skrivefeil: "const tabellrekke.innerHTML" (ugyldig) og "celles" (cells).
 - insertRow(-1) legger rekka sist; findIndex gir -1 når ingen matcher, så
   insertRow(findIndex(...)) håndterer "større enn alle" uten spesialtilfelle.
 - Semikolon skrives alltid ut; ikke stol på automatisk semikoloninnsetting (ASI).
+- valueAsNumber for type="time" = millisekunder siden midnatt; NaN når feltet er tomt
+  (F11 slide 44). value er "" når feltet er tomt eller halvfylt.
+- input-hendelsen på tidsfelt kommer først når hele feltet er fylt ut; deretter for
+  hver endring (mellomverdier er normalt).
+- Lytter laget inne i en metode husker lokale variabler fra samme kall (closure):
+  hver rad får sine egne startElement/sluttElement/lopstidElement.
+- Felt som avhenger av hverandre: la begge lytterne kalle SAMME valideringsmetode.
+- if-betingelsen beskriver når FEILEN skal vises: «ikke etter» = før eller lik -> <=.
+- && krever at alle delene er sanne; én usann del -> else. Kortslutning som i Java.
+- Sammenligning med NaN er alltid false. Ikke stol på det; skriv sjekken eksplisitt.
+- if / else if / else: else if kjører bare når if var usann, så tidligere grener
+  «tar» sine tilfeller først.
+- Private metoder kalles alltid med this.#navn(...), også inne i andre metoder.
+- Math.trunc kutter desimaler (F12-14 slide 18). % er rest (modulo), som i Java.
+- To sifre: if (tall < 10) return `0${tall}`; (padStart finnes, men er ikke i kurset).
+- /* ... */ er kommentar; "const x = /* ... */;" er syntaksfeil (mangler verdi).
 
 ANDRE MERKNADER
 ---------------
 - #fyllListe (demodata) kan fjernes i endelig løsning.
 - Utviklingsverdier i index.html: value="123" og value="Ole Olsen" fjernes før levering.
 - DAT108_Oblig3\.claude\ må slettes før zipping.
+- Levering krever gruppe 2-4; alene bare etter avtale. Gruppe ikke avklart per 30.09.
+- PDF-gjennomgang 30.09: alle meldingstekster i A3/A5/B4 stemmer ordrett med PDF-en
+  (bortsett fra punktum på oblig3.js:71). input:invalid i CSS dekker også tidsfeltene.

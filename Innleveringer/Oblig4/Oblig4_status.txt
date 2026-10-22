@@ -1,0 +1,531 @@
+OBLIG4 SPRING MVC - STATUS (sist oppdatert 22.10.2026, etter økt 2)
+====================================================================
+Frist: søndag 25. oktober.
+Oppgavetekst: Innleveringer\Oblig4\DAT108_Oblig4 - Spring Web – Oppdatert.pdf
+Kartlegging (krav, TODO-kart, beslutninger, testmatrise): Innleveringer\Oblig4\Oblig4_kartlegging.txt
+Prosjekt: IntelliJ_ws\DAT108_Oblig4-springmvc-fyllinn (Maven-rot)
+Status: ALLE 35 TODO FERDIG (søk etter "TODO" i src\ gir 0 treff). All manuell testing av
+        påmelding, bekreftelse, deltagerliste, inn- og utlogging gir forventet resultat.
+        Gjenstår: to siste tester, skjermbilder, PDF, zip (se NESTE STEG).
+
+ARBEIDSFORM (avtalt med studenten, overstyrer CLAUDE.md-default)
+-----------------------------------------------------------------
+- Ett steg = én SAMMENHENGENDE ENHET (f.eks. hele skjemaet, hele controller-metoden + malen den
+  bruker), ikke én linje/ett felt per svar. Endret i økt 2: for små steg kostet tid og tokens.
+- Ikke for mye på én gang heller: gi det som hører sammen for oppgaven studenten holder på med,
+  ikke framtidige steg. Beslutninger (B-ID) som må tas, presenteres tydelig med anbefaling,
+  og studenten må vite at det forventes et svar.
+- Konkret veiledning: vis Hellands mønster (fil:linje) og oversett det til prosjektet
+  (tabell f19b -> Oblig4 fungerte godt). Full kode (trinn 3) når studenten ber om det.
+- Studenten skriver all kode selv i IntelliJ. Claude leser filen og gjennomgår når studenten
+  sier fra (les hele den relevante delen én gang, ikke etter hver linje).
+- Gjengi slide-/kodeinnhold direkte i svaret i stedet for å be studenten slå opp.
+- Følg Hellands eksempelprosjekter og Thymeleaf-jukselappen (alt i jukselappen er lov).
+- Valgfrie deler droppes (studentens valg i økt 2).
+
+FREMDRIFT (TODO-ID fra kartleggingen)
+-------------------------------------
+ID        Status    Hvor / merknad
+--------  --------  ---------------------------------------------------------------
+T01-T04   ferdig    DeltagerDbService.java:21-50 (streams, findFirst/orElse, sorted, add)
+T05-T07   ferdig    LogginnService.java:14-40 (getSession(false/true), invalidate, setAttribute
+                    "innloggetDeltager", setMaxInactiveInterval(120))
+T08-T12   ferdig    DeltagerSkjema.java:33-56 (@NotNull + @Pattern/@Size, message = Feilmeldinger.X)
+T13-T14   ferdig    PaameldingController.java:24-27    @GetMapping("/paamelding") -> "paameldingsskjema"
+T15-T16   ferdig    PaameldingController.java:37-58    @PostMapping("/paamelding"), Model lagt til,
+                                                       guard -> view, ellers hash/lagDeltager/lagre/
+                                                       loggInn/"redirect:/paameldt"
+T17-T18   ferdig    PaameldingController.java:67-74    @GetMapping("/paameldt"), guard -> flash +
+                                                       "redirect:/innlogging", ellers view
+T19-T20   ferdig    DeltagerlisteController.java:23-34 guard + model.addAttribute("deltagere",
+                                                       finnAlleSortertPaaFulltNavn())
+T21-T22   ferdig    InnUtloggingController.java:21-24  @GetMapping("/innlogging") -> "logginn"
+T23-T24   ferdig    InnUtloggingController.java:34-47  finn deltager, null || !erPassordKorrekt ->
+                                                       flash + redirect, ellers loggInn + redirect
+T25-T26   ferdig    InnUtloggingController.java:54-59  loggUt, flash UTLOGGET_MLD, redirect
+T27-T28   ferdig    paameldingsskjema.html:12-23       rød feilmelding, POST-skjema, th:value med ?.,
+                                                       type="password", radio mann/kvinne
+T29-T30   ferdig    paameldingsbekreftelse.html:12-17  ${session.innloggetDeltager.x} + lenke
+T31-T32   ferdig    logginn.html:11-17                 rød feilmelding + POST-skjema mobil/passord
+T33-T35   ferdig    deltagerliste.html:10-38           «Innlogget som» med |...|, th:block th:each,
+                                                       th:if/th:unless grønn rad, th:utext symbol,
+                                                       POST-skjema utlogging
+
+JUnit (src\test\java\no\hvl\dat108\oblig4\), grønne ved slutten av økt 1:
+  DeltagerDbServiceTest         7 tester (T01-T04)
+  DeltagerSkjemaValideringTest 12 tester (T08-T12), mønster fra f18b PersonValideringTest.
+    Strategi: lite utvalg av viktigste tilfeller (null, grenseverdier rett under/over,
+    det som skiller V2 fra V1, én gyldig med bindestrek/æøå).
+  Controllere, maler og LogginnService testet manuelt i nettleser (krever ekte request).
+
+Manuelle tester utført i økt 2 (alle OK):
+  [x] GET /paamelding viser skjema
+  [x] Tomt skjema -> «Påmeldingsdetaljer er ugyldige», skjema på nytt
+  [x] Eksisterende mobil (12345678) -> «allerede påmeldt», navnefelt står igjen
+  [x] Gyldig påmelding -> /paameldt med fornavn, etternavn, mobil, kjønn. F5 gir ikke dobbel påmelding
+  [x] Deltagerliste: «Innlogget som», sortert, egen rad grønn, ♂/♀, mobil «223 34 455»
+  [x] Logg ut -> /innlogging + «Du er logget ut»
+  [x] Ukjent mobil / feil passord / hardkodet bruker (dummyhash) -> samme feilmelding, ingen krasj
+  [x] Riktig innlogging -> deltagerliste
+  [x] /deltagerliste og /paameldt i privat vindu -> /innlogging + «krever at du er innlogget»
+  [x] Etter utlogging: tilbake + F5 -> innloggingssiden
+  [ ] Sesjon utløper etter 120 s
+  [ ] Manipulert kjønn (DevTools value="annet") -> feilmelding, ikke Whitelabel
+
+BESLUTNINGER (B-ID fra kartleggingen)
+-------------------------------------
+B1  feilvisning i meldePaa:      TATT = A. Model-parameter, model.addAttribute("feilmelding", ...),
+                                 return "paameldingsskjema" (ingen redirect ved feil).
+                                 Begrunnelse: Helland gjør dette i F18/F20 (f18a, f20a, f18b), og det er
+                                 Spring-konvensjonen. Ugyldig POST endrer ingenting, så PRG trengs ikke.
+                                 Skjemaobjektet ligger i modellen -> feltene fylles ut igjen gratis.
+B2  sesjonsattributt:            TATT = A. Hele Deltager-objektet under "innloggetDeltager".
+                                 Ikke "deltager" (kolliderer med @ModelAttribute("deltager")).
+                                 Kjent ulempe: hashetPassord ligger også i sesjonen (kun på tjeneren).
+B3  grønn rad:                   TATT = A. th:block th:each + to <tr> med th:if/th:unless, inline
+                                 style="background-color:lightgreen; color:black;" (color:black pga.
+                                 mørk modus i simple.css). Sammenligner på mobil (unik).
+B4  kjønnsymbol:                 TATT = th:utext (verdien er konstant i koden, ikke brukerdata).
+B5  sortering:                   TATT = A, Deltager.paaFulltNavn.
+B6  timeout:                     TATT = 120 sekunder.
+B7  kjønn-radio:                 TATT = ingen forhåndsvalg (ingen checked). Skjermbildet i oppgaven
+                                 har «mann» valgt, men «ca. slik» gir frihet. @NotNull fanger tomt valg.
+B8  testbrukere:                 TATT = ingen endring. Hardkodede brukere (dummyhash) kan ikke logge inn.
+                                 Testing: meld på ny bruker først (listen nullstilles ved omstart).
+B9-B11, feltvise feilmeldinger:  DROPPET (valgfritt). B11 delvis gjort i økt 1 (JUnit DeltagerSkjema).
+Feilmeldinger:                   Tre ulike meldinger (generell, repetert passord, allerede påmeldt)
+                                 oppfyller kravet på s. 7. Meldinger per felt er ikke krav.
+Passordkrav:                     Lærers krav beholdt (min 4 tegn).
+
+ÅPNE FEIL
+---------
+Ingen funksjonelle feil.
+Kosmetisk: redirect-strenger er kanskje ikke helt konsekvente. Sjekk at de er det.
+
+NESTE STEG = HANDOFF TIL ØKT 3 (dobbelsjekk -> skjermbilder -> PDF -> zip -> levering)
+---------------------------------------------------------------------------------------
+Åpningsmelding i ny økt: «Fortsetter på Oblig4. Les statusfila og start på handoff del A.»
+Rekkefølge: A, B, C, D. Ikke ta skjermbilder før A er ferdig (endringer i A kan endre sidene).
+
+DEL A - Dobbelsjekk av hele løsningen (Claude leser, studenten retter)
+  A1. Claude leser i ÉN runde: de tre controllerne, LogginnService, DeltagerDbService,
+      DeltagerSkjema og de fire malene. Sjekk krav for krav mot kartleggingen:
+        K1  alle requests og redirects går til controller-URL-er, aldri til .html/viewnavn
+        K2  all HTML fra Thymeleaf-maler
+        K3  hjelpeklassene brukes, minst mulig teknikk i controllerne
+        P1-P5, V1-V6  påmelding og validering (tjenerside)
+        L1-L6  deltagerliste (innlogget som, sortering, grønn rad, symbol, formatert mobil,
+               tilgangskontroll, logg ut)
+        I1-I5  innlogging (skjema, feilmelding, passordsjekk med erPassordKorrekt)
+      Sjekk også: hashet passord lagres (aldri klartekst), passordfelt fylles aldri ut igjen,
+      th:text på all brukerdata (th:utext kun kjønnsymbol).
+  A2. Kosmetisk opprydding (studenten gjør i IntelliJ):
+      - Velg én redirect-form ("redirect:/x" eller "redirect:x") og bruk den i alle tre controllere.
+      - Ctrl+Alt+L (reformat) på alle endrede filer: blandet tab/mellomrom i controllerne.
+      - Fjern ubrukte importer (Ctrl+Alt+O) og eventuell IO.println-feilsøking.
+      - View | Tool Window | TODO: skal vise 0.
+  A3. Kjør JUnit (høyreklikk src\test -> Run All Tests). Forventet: alle grønne (7 + 12 + kontekst-test).
+  A4. Kjør de to manglende testene:
+      - Timeout: logg inn, vent > 120 s uten aktivitet, F5 på /deltagerliste -> /innlogging +
+        «Forespørselen din krever at du er innlogget».
+      - Manipulert input: DevTools på /paamelding, endre value="kvinne" til value="annet",
+        send gyldig skjema ellers -> «Påmeldingsdetaljer er ugyldige», ingen Whitelabel/500.
+
+DEL B - Skjermbilder til PDF
+  Oppsett før start:
+    - Nettleser i LYS modus (oppgavens skjermbilder er lyse; grønn rad vises riktig).
+    - Adresselinjen skal være synlig i hvert bilde (viser URL-en, f.eks. /paameldt etter PRG).
+    - Samme vindusstørrelse på alle bilder. DevTools lukket, unntatt bilde B5.
+    - Restart appen rett før (listen nullstilles, kun de hardkodede deltagerne).
+    - Testdata: bruker 1 = Arne / Arnesen / 22334455 / passord test / mann.
+                bruker 2 = Kari-Anne / Berg-Olsen / 33445566 / passord test / kvinne
+                (viser bindestrek, æøå kan også brukes, og sortering).
+  Ta bildene i denne rekkefølgen (én gjennomkjøring):
+    Nr  Side / URL                     Hva skal vises                                    Krav
+    --  -----------------------------  ------------------------------------------------  ---------
+    B1  /paamelding (tomt)             Tomt påmeldingsskjema                             P1
+    B2  /paamelding etter innsending   «Påmeldingsdetaljer er ugyldige» i rødt, gyldige  P5, V1-V3
+        (fornavn Lars, etternavn         felt (navn) står igjen, ugyldig mobil står igjen,
+        Larsen, mobil 1234)              passordfelt tomme. Samme eksempel som oppgaven s. 7
+    B3  /paamelding                    «Repetert passord må være likt passord»           V5
+    B4  /paamelding (mobil 12345678)   «En deltager med dette nummeret er allerede        P5, V3
+                                       påmeldt»
+    B5  /paamelding med DevTools åpen  value="annet" i radioknappen + feilmelding etter  P2 (tjener-
+        (valgfri, men sterk)           innsending. Dokumenterer at tjenervalidering        validering)
+                                       ikke kan omgås
+    --  (ikke bilde) Meld på bruker 2 (Kari-Anne), trykk «Gå til deltagerlisten», «Logg ut».
+        Da er hun med i listen i B7.
+    B6  /paameldt                      Meld på Arne. Bekreftelse: fornavn, etternavn,    P3, P4
+                                       mobil, kjønn + lenken. URL = /paameldt (PRG)
+    B7  /deltagerliste                 «Innlogget som: 22334455 / Arne Arnesen», sortert  L1-L4
+                                       liste, Arne grønn, ♂/♀, mobil «223 34 455»
+    B8  /innlogging etter «Logg ut»    «Du er logget ut» i rødt                          L6
+    B9  /innlogging etter feil passord «Ugyldig brukernavn og/eller passord» i rødt      I3
+        (22334455 / feil)
+    B10 /innlogging (privat vindu,     «Forespørselen din krever at du er innlogget»     L5, I4
+        skrev /deltagerliste direkte)  Adresselinje viser /innlogging
+    B11 /deltagerliste etter innlogging Logg inn som Kari-Anne (33445566 / test). Listen  I2, L3
+        som bruker 2                   vises, nå er HENNES rad grønn (viser at uthevingen
+                                       følger innlogget bruker)
+    B12 /innlogging etter 120 s        Timeout -> «krever at du er innlogget»            B6/sesjon
+        (valgfri)
+    B13 IntelliJ testvindu (valgfri)   JUnit-tester grønne                               B11
+  Minimum som dekker oppgaveteksten: B1, B2, B4, B6, B7, B8, B9, B10. Resten styrker PDF-en.
+
+DEL C - PDF
+  - Forside: «DAT108 Oblig4 - Spring MVC», gruppenummer, alle gruppemedlemmer (navn).
+    Gruppe på 2-4 kreves; leverer man alene, gir lærer mindre detaljert tilbakemelding.
+  - Ett skjermbilde per avsnitt med kort bildetekst: hva som ble gjort og hva som vises
+    (f.eks. «B2: Ugyldig mobil (1234). Skjemaet vises på nytt med feilmelding, gyldige verdier
+    står igjen, passordfelt er tomme.»).
+  - Valgfritt kort avsnitt om valg: feil vises uten redirect (Model + view), PRG etter vellykket
+    påmelding, hele Deltager i sesjonen, th:utext kun for kjønnsymbol (konstant), timeout 120 s.
+  - Lagres som PDF (Word: Fil -> Lagre som -> PDF).
+
+DEL D - Zip og levering
+  Fremgangsmåte: VELG hva som zippes (se «CC_sjekk før jobbing og innlevering.txt» i fagrota),
+  ikke rens prosjektmappa.
+  D1. Stopp appen. Lag ny tom mappe Oblig4_grNN\ (utenfor IntelliJ_ws) med:
+        PDF-en
+        DAT108_Oblig4-springmvc-fyllinn\ som inneholder KUN: src\, pom.xml, mvnw, mvnw.cmd, .mvn\
+        (valgfritt .gitignore, .gitattributes)
+      IKKE: .idea\ (har claudeCodeTabState.xml), target\, .claude\, *.md.
+  D2. Sikkerhetsnett i den nye mappa:
+        Get-ChildItem -Recurse -Force -Include *.md, .claude, .idea, target
+      Tom utskrift = klar.
+  D3. Zip mappa -> Oblig4_grNN.zip (NN = gruppenummer).
+  D4. Valgfri kontroll: pakk ut zip-en et annet sted, åpne i IntelliJ, kjør Oblig4App, sjekk
+      localhost:8080/paamelding.
+  D5. Canvas: meld deg inn i gruppe i gruppesettet «DAT108 Oblig4 gr» FØR levering, last opp zip.
+      Frist søndag 25.10.
+
+ETTER LEVERING - eksamensøving
+  Skriv for hånd uten IDE: meldePaa, hentePaameldt, loggeInn, loggeUt, LogginnService
+  (3 metoder), deltagerliste-tabellen med th:each og grønn rad. Sammenlign med NØKKELKODE under.
+  Mye controller-/Thymeleaf-kode ble gitt som trinn 3 i økt 2 pga. frist, så dette MÅ øves.
+
+LÆRT (eksamensrelevant, gruppert etter tema)
+--------------------------------------------
+Merket [U] = bør kunnes utenat (håndskrevet eksamen). [F] = må kunne forklare.
+
+Streams og Java (F02-F05)
+- [U] Finn én: liste.stream().filter(x -> ...).findFirst().orElse(null)
+- [U] Finnes noen: liste.stream().anyMatch(x -> ...)  (alternativ: finnEn(...) != null)
+- [U] Sortér: liste.stream().sorted(Comparator.comparing(Klasse::getFelt)).toList()
+      sorted() lager ny liste; originalen endres ikke. toList() gir en uforanderlig liste.
+- [F] findFirst() returnerer Optional<T> (boks som kan være tom); orElse(x) pakker ut med standardverdi.
+- [F] Lambda-parameter (d -> ...) er fritt navn, typen utledes fra strømmen. Kan ikke ha samme
+      navn som en eksisterende lokal variabel/parameter.
+- [F] a.equals(b) kaster NPE hvis a er null. Sett den verdien du VET ikke er null til venstre:
+      d.getMobil().equals(mobil) tåler mobil == null.
+- [F] equals() = like/ulike (boolean). compareTo() = rekkefølge (<0, 0, >0).
+- [F] static felt = én felles instans for hele appen (delt av alle brukere/tråder).
+- [F] || og && kortslutter: i «a == null || a.metode()» kjøres a.metode() aldri når a er null.
+      Rekkefølgen i betingelsen er derfor avgjørende for å unngå NPE.
+
+Bean Validation og regex (F18)
+- [U] @NotNull(message = ...) + @Pattern(regexp = "...", message = ...) / @Size(min = , max = , message = ...)
+- [U] @Pattern og @Size regner null som GYLDIG -> @NotNull må alltid med.
+- [U] Controller: @Valid @ModelAttribute("navn") Skjema skjema, BindingResult bindingResult
+      (BindingResult rett etter, ellers kastes unntak). bindingResult.hasErrors().
+- [F] @Pattern sjekker HELE strengen (Matcher.matches()) -> ^ og $ er unødvendige.
+- [F] Regex: [abc] = ett tegn fra klassen. {8} = nøyaktig 8, {1,19} = 1 til 19, * = 0 eller flere.
+      Kvantoren gjelder leddet rett foran, nytt tegnvalg for hver gjentakelse.
+      [^abc] = ett tegn som IKKE er a, b eller c. a|b = a eller b (hele alternativer).
+- [F] | er regex-syntaks og står INNE i strengen: "mann|kvinne". "mann" | "kvinne" er Java-
+      operator -> kompileringsfeil. + mellom strenger er Java-sammenslåing før regex-motoren.
+- [F] Annoteringsverdier må være kompileringstidskonstanter (static final, + mellom dem er ok).
+- [F] Regler som krever oppslag (mobil allerede påmeldt) eller to felt (passord = repetert)
+      kan ikke uttrykkes med feltannoteringer -> programmatisk sjekk i controller/hjelpemetode.
+- [F] Hjelpemetode som returnerer feilmelding eller null (meldingFraInputValidering) holder
+      controller-metoden kort: «String feilmelding = ...; if (feilmelding != null) {...}».
+
+Klientside- vs. tjenersidevalidering
+- [F] Klientside (HTML required/pattern, CSS :invalid, JS setCustomValidity): kjører i
+      nettleseren FØR innsending. Formål: brukervennlighet. Kan omgås (DevTools, avslått JS,
+      curl/Postman). Frivillig i Oblig4.
+- [F] Tjenerside (Bean Validation + programmatisk): kjører på tjeneren ETTER mottak. Formål:
+      sikkerhet, robusthet, dataintegritet. Kan ikke omgås. Obligatorisk.
+      Kan sjekke mot lagrede data (unik mobil). All input behandles som upålitelig.
+- [F] Uten tjenervalidering: ugyldige data lagres, krasj (NPE ved manglende felt), sikkerhetshull.
+- [F] Hvitelisting (beskriv hva som er LOV) framfor svartelisting (hva som er forbudt).
+- [F] Radioknapper/dropdown begrenser bare vanlige brukere; value kan endres i DevTools.
+  Modellsvar: «Klientsidevalidering gir rask tilbakemelding, men kan omgås fordi tjeneren ikke
+  kontrollerer klienten. Tjenersidevalidering er derfor obligatorisk: all input sjekkes før den
+  brukes/lagres, og tjeneren kan i tillegg sjekke mot lagrede data. Bruk hvitelisting.
+  I Spring: Bean Validation på skjemaobjekt + @Valid/BindingResult + programmatisk sjekk.»
+
+Sesjoner og innlogging (F19)
+- [U] request.getSession(false) = hent eksisterende sesjon, ELLER null hvis ingen. Oppretter ikke.
+      Brukes når man bare skal SJEKKE (erInnlogget) eller LOGGE UT.
+- [U] request.getSession(true) (= getSession()) = hent eksisterende, ELLER opprett ny.
+      Brukes ved INNLOGGING.
+- [U] sesjon.setAttribute("navn", objekt) / (Type) sesjon.getAttribute("navn") (cast!)
+      / sesjon.invalidate() / sesjon.setMaxInactiveInterval(sekunder)
+- [U] Innlogget-sjekk: sesjon != null && sesjon.getAttribute("x") != null  (&& kortslutter)
+- [U] Innlogging: 1) logg ut/invalider gammel sesjon, 2) getSession(true),
+      3) setAttribute, 4) setMaxInactiveInterval.
+- [F] Hvorfor invalidere før innlogging: hindrer sesjonsfiksering (session fixation) -
+      en angriper kan ha plantet en kjent sesjons-id før brukeren logget inn.
+- [F] Sesjon = Map av attributter (navn -> objekt) som lever på tvers av requester for én bruker.
+      Tomcat holder sesjonene; nettleseren sender JSESSIONID-cookie som kobler request til sesjon.
+- [F] Man lager aldri new HttpSession(); man får en referanse via request.getSession(...).
+- [F] Hvorfor HttpServletRequest som parameter, ikke HttpSession: med request kan man velge å
+      ikke opprette sesjon (false). En HttpSession-parameter får Spring til å alltid opprette en.
+- [F] Attributtnavnet er en vanlig streng; skrivefeil kompilerer, men brukeren blir aldri
+      «innlogget». Bruk nøyaktig samme navn overalt (Java OG maler).
+- [F] Scopes: request (parametre, model-attributter) lever én request; flash-attributter
+      overlever én redirect; session lever til invalidate()/timeout.
+- [F] Lagre hele brukerobjektet i sesjonen = enkelt, men kan bli utdatert. Lagre bare id =
+      alltid ferske data, men oppslag i hver request. Valg avhenger av app.
+- [U] Innloggingssjekk (loggeInn): finn bruker på brukernavn -> hvis null ELLER feil passord:
+      samme feilmelding + redirect tilbake. Null-sjekk FØRST (ellers NPE på getHashetPassord()).
+- [F] Samme melding for ukjent bruker og feil passord: hindrer at en angriper kan finne ut hvilke
+      brukernavn (mobilnumre) som er registrert (brukeroppramsing / user enumeration).
+- [F] Passord: lagHashetPassord(klartekst) ved registrering, lagre KUN hashen.
+      Ved innlogging: erPassordKorrekt(klartekst, lagretHash) hasher input og sammenligner.
+      Klartekstpassord lagres aldri og sendes aldri tilbake til nettleseren.
+- [F] Tilgangskontroll må stå i HVER controller-metode som krever innlogging (/paameldt,
+      /deltagerliste). Hver request er uavhengig, og brukeren kan skrive URL-en direkte.
+- [F] Utlogging gjøres med POST-skjema (endrer tilstand), ikke vanlig lenke (GET). Jf. f19b.
+- [F] Etter utlogging + tilbakeknapp + F5: ny request uten gyldig sesjon -> guard slår inn.
+
+Spring MVC: controllere, URL vs. view, PRG (F16-F19)
+- [U] @Controller på klassen. @GetMapping("/x") / @PostMapping("/x") på metoden.
+      Returverdi: "viewnavn" (= templates/viewnavn.html) ELLER "redirect:/url" (ny GET-request).
+- [F] URL og viewnavn er to forskjellige ting. /innlogging -> view "logginn". Redirect går alltid
+      til en URL som har en controller-metode, aldri til et viewnavn eller en .html-fil.
+- [F] Samme URL kan ha både GET (vis skjema) og POST (ta imot skjema). Spring velger metode ut
+      fra HTTP-metoden. Skjemaets action peker på URL-en, method="post".
+- [U] Guard-mønster: sjekk feil/innlogging først, håndter og return tidlig. Deretter happy path.
+- [F] Spring injiserer de parameterne metoden ber om (Model, HttpServletRequest,
+      RedirectAttributes, @RequestParam, @ModelAttribute). Rekkefølgen er fri, UNNTATT at
+      BindingResult må stå rett etter @Valid-parameteren. Man kan legge til parametre i en
+      gitt signatur (Model i meldePaa).
+- [U] @RequestParam String mobil: navnet må være likt name="mobil" i skjemaet. Mangler
+      parameteren -> 400 Bad Request.
+- [U] model.addAttribute("navn", verdi) -> ${navn} i malen. Lever bare i denne requesten.
+- [U] ra.addFlashAttribute("navn", verdi) + return "redirect:/url" -> ${navn} i malen etter
+      redirecten. Brukes for meldinger som skal overleve en redirect (guard, utlogging).
+- [F] PRG (Post/Redirect/Get): en POST som ENDRER noe (lagring, innlogging) avsluttes med
+      redirect. Nettleseren gjør da en GET, så F5 sender ikke skjemaet på nytt (ingen dobbel
+      påmelding).
+- [F] Ved valideringsfeil: returner viewet direkte, ingen redirect. Ugyldig POST endrer ingenting,
+      så ny innsending er ufarlig. Skjemaobjektet (og BindingResult) finnes bare i samme
+      request, så feltene fylles ut igjen uten ekstra kode. (f18a, f20a, Spring-konvensjon.)
+      Alternativ: flash + redirect, men da må skjemaobjektet også flashes.
+- [F] Flash-attributt etter invalidate() (loggeUt) virker: Spring lagrer det i en ny sesjon
+      når redirecten behandles.
+- [F] "redirect:x" og "redirect:/x" virker begge når appen ligger på rot. Vær konsekvent.
+- [F] Model vs. sesjon: data som trengs på mange sider for innlogget bruker (navn, mobil)
+      hentes fra sesjonen. Data for én side (deltagerlisten) legges i modellen.
+
+Thymeleaf (F16-F19, jukselapp)
+- [U] th:text="${x}" setter innholdet og ESCAPER (trygt mot XSS). Standardvalg for all data.
+- [U] th:utext tolker HTML (ingen escaping). KUN for betrodd innhold, f.eks. konstanten
+      "&#9794;" for ♂. Aldri brukerdata. th:text ville vist «&#9794;» bokstavelig.
+- [U] ${objekt.felt} kaller getFelt(). Egenskapsnavn = getter uten «get», liten forbokstav
+      (getFulltNavn() -> fulltNavn, getMobilFormatert() -> mobilFormatert).
+- [U] ${session.innloggetDeltager.fornavn} leser fra sesjonen direkte i malen.
+- [U] |Innlogget som: ${a} / ${b}| = tekst med verdier (literal substitution).
+- [U] th:each="d : ${deltagere}" på <tr> eller <th:block> gjentar elementet per element i listen.
+- [U] <th:block> = usynlig beholder. Brukes når flere elementer skal gjentas/velges uten ekstra HTML.
+- [U] th:if="${betingelse}" + th:unless="${samme betingelse}" = if/else i malen.
+- [U] th:value="${deltager?.fornavn}" fyller ut skjemafelt igjen. ?. (safe navigation) gir tom
+      verdi i stedet for feil når objektet ikke finnes (første GET).
+      "deltager" er navnet fra @ModelAttribute("deltager") i controlleren.
+- [U] Feilmelding: <p style="color:red;" th:text="${feilmelding}"></p>. Er attributtet null,
+      blir <p> tomt, uten feil. Trenger ingen th:if.
+- [F] I Thymeleaf-uttrykk (SpEL) sammenligner == strenger på VERDI. I Java må man bruke equals().
+- [F] Sammenlign på unik id (mobil), ikke navn, når innlogget rad skal utheves.
+- [F] th:checked, th:style, th:classappend er IKKE i kursmaterialet/jukselappen.
+
+HTML-skjema
+- [U] <form action="url" method="post"> ... <input type="submit" value="..."> </form>
+- [U] name= i input MÅ være identisk med feltnavnet i skjemaobjektet (data binding via setter)
+      eller @RequestParam-navnet. Store/små bokstaver teller (passordRepetert).
+      Feil navn -> null i skjemaobjektet -> @NotNull slår til -> alltid «ugyldig».
+- [U] type="password" for passord. Passordfelt fylles ALDRI ut igjen med th:value.
+- [U] Radioknapper: samme name, ulik value. Det er value som sendes (må matche @Pattern),
+      teksten etter knappen er bare visning. checked gir forhåndsvalg.
+- [F] <input ...> må avsluttes med >. Tagnavn er ikke case-sensitive, men bruk små bokstaver.
+- [F] <meta charset="UTF-8"> først i <head>. Spring sender også charset i Content-Type-headeren,
+      men meta-taggen bør være med.
+- [F] Inline style med bakgrunnsfarge: sett også color, ellers kan tekst bli uleselig i mørk modus.
+
+Testing (JUnit og manuelt)
+- [F] Rød -> grønn: skriv testen først, se den feile, skriv koden, se den passere.
+- [F] Testverdi skal bryte nøyaktig én regel (f.eks. "Et navn" tester kun mellomrom-regelen).
+- [F] Grenseverditesting: test rett under, på og rett over grensen (7, 8, 9 siffer).
+      Ekvivalensklasser: alle verdier i samme gruppe oppfører seg likt.
+- [F] Ett konsept per test. @BeforeEach kjører før hver testmetode; endringer inne i én
+      metode blir liggende til neste sjekk i samme metode.
+- [F] Test både at ugyldige verdier avvises OG at gyldige godtas (fanger for streng regex).
+- [F] Validator: Validation.buildDefaultValidatorFactory().getValidator();
+      validator.validate(obj) gir Set<ConstraintViolation<T>>.
+- [F] Tilgangskontroll testes i privat vindu (ingen sesjons-cookie).
+- [F] Tjenervalidering testes ved å omgå klienten: endre value/fjerne felt i DevTools.
+
+NØKKELKODE (studentens endelige løsning, til eksamensøving - skriv for hånd og sammenlign)
+-----------------------------------------------------------------------------------------
+// PaameldingController - GET viser skjema
+@GetMapping("/paamelding")
+public String henteSkjema() {
+    return "paameldingsskjema";
+}
+
+// PaameldingController - POST med validering, guard, PRG
+@PostMapping("/paamelding")
+public String meldePaa(HttpServletRequest request, Model model,
+        @Valid @ModelAttribute("deltager") DeltagerSkjema skjema,
+        BindingResult bindingResult) {
+    String feilmelding = meldingFraInputValidering(skjema, bindingResult);
+    if (feilmelding != null) {
+        model.addAttribute("feilmelding", feilmelding);
+        return "paameldingsskjema";
+    }
+    String hashetPassord = PassordService.lagHashetPassord(skjema.getPassord());
+    Deltager deltager = skjema.lagDeltager(hashetPassord);
+    DeltagerDbService.lagreDeltager(deltager);
+    LogginnService.loggInnBruker(request, deltager);
+    return "redirect:/paameldt";
+}
+
+// Guard for side som krever innlogging (samme mønster i henteDeltagerliste)
+@GetMapping("/paameldt")
+public String hentePaameldt(HttpServletRequest request, RedirectAttributes ra) {
+    if (!LogginnService.erBrukerLoggetInn(request)) {
+        ra.addFlashAttribute("feilmelding", Feilmeldinger.KREVER_INNLOGGET_MLD);
+        return "redirect:/innlogging";
+    }
+    return "paameldingsbekreftelse";
+}
+
+// DeltagerlisteController - guard + data i modellen
+@GetMapping("/deltagerliste")
+public String henteDeltagerliste(HttpServletRequest request, Model model, RedirectAttributes ra) {
+    if (!LogginnService.erBrukerLoggetInn(request)) {
+        ra.addFlashAttribute("feilmelding", Feilmeldinger.KREVER_INNLOGGET_MLD);
+        return "redirect:/innlogging";
+    }
+    model.addAttribute("deltagere", DeltagerDbService.finnAlleSortertPaaFulltNavn());
+    return "deltagerliste";
+}
+
+// InnUtloggingController - innlogging
+@PostMapping("/innlogging")
+public String loggeInn(@RequestParam String mobil, @RequestParam String passord,
+        HttpServletRequest request, RedirectAttributes ra) {
+    Deltager deltager = DeltagerDbService.finnDeltagerMedMobil(mobil);
+    if (deltager == null || !PassordService.erPassordKorrekt(passord, deltager.getHashetPassord())) {
+        ra.addFlashAttribute("feilmelding", Feilmeldinger.UGYLDIG_BRUKERNAVN_PASSORD_MLD);
+        return "redirect:innlogging";
+    }
+    LogginnService.loggInnBruker(request, deltager);
+    return "redirect:deltagerliste";
+}
+
+// InnUtloggingController - utlogging
+@PostMapping("/utlogging")
+public String loggeUt(HttpServletRequest request, RedirectAttributes ra) {
+    LogginnService.loggUtBruker(request);
+    ra.addFlashAttribute("feilmelding", Feilmeldinger.UTLOGGET_MLD);
+    return "redirect:innlogging";
+}
+
+// LogginnService
+public static boolean erBrukerLoggetInn(HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    return session != null && session.getAttribute("innloggetDeltager") != null;
+}
+public static void loggUtBruker(HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+        session.invalidate();
+    }
+}
+public static void loggInnBruker(HttpServletRequest request, Deltager deltager) {
+    loggUtBruker(request);
+    HttpSession session = request.getSession(true);
+    session.setAttribute("innloggetDeltager", deltager);
+    session.setMaxInactiveInterval(120); //sek
+}
+
+<!-- paameldingsskjema.html - feilmelding + skjema som fylles ut igjen -->
+<p style="color:red;" th:text="${feilmelding}"></p>
+<form action="paamelding" method="post">
+    <p>Fornavn <input type="text" name="fornavn" th:value="${deltager?.fornavn}"></p>
+    <p>Etternavn <input type="text" name="etternavn" th:value="${deltager?.etternavn}"></p>
+    <p>Mobil <input type="text" name="mobil" th:value="${deltager?.mobil}"></p>
+    <p>Passord <input type="password" name="passord"></p>
+    <p>Passord repetert <input type="password" name="passordRepetert"></p>
+    <p>Kjønn
+        <input type="radio" name="kjonn" value="mann">Mann
+        <input type="radio" name="kjonn" value="kvinne">Kvinne</p>
+    <p><input type="submit" value="Meld meg på"></p>
+</form>
+
+<!-- paameldingsbekreftelse.html - data fra sesjonen -->
+<p th:text="${session.innloggetDeltager.fornavn}"></p>
+<p th:text="${session.innloggetDeltager.etternavn}"></p>
+<p th:text="${session.innloggetDeltager.mobil}"></p>
+<p th:text="${session.innloggetDeltager.kjonn}"></p>
+<a href="deltagerliste">Gå til deltagerlisten</a>
+
+<!-- deltagerliste.html - sesjonsdata, liste med utheving, utlogging -->
+<p th:text="|Innlogget som: ${session.innloggetDeltager.mobil} / ${session.innloggetDeltager.fulltNavn}|"></p>
+<table>
+    <tr><th>Kjønn</th><th>Navn</th><th>Mobil</th></tr>
+    <th:block th:each="d : ${deltagere}">
+        <tr th:if="${d.mobil == session.innloggetDeltager.mobil}" style="background-color:lightgreen; color:black;">
+            <td th:utext="${d.kjonnsymbol}"></td>
+            <td th:text="${d.fulltNavn}"></td>
+            <td th:text="${d.mobilFormatert}"></td>
+        </tr>
+        <tr th:unless="${d.mobil == session.innloggetDeltager.mobil}">
+            <td th:utext="${d.kjonnsymbol}"></td>
+            <td th:text="${d.fulltNavn}"></td>
+            <td th:text="${d.mobilFormatert}"></td>
+        </tr>
+    </th:block>
+</table>
+<form action="utlogging" method="post">
+    <input type="submit" value="Logg ut">
+</form>
+
+<!-- logginn.html -->
+<p style="color:red;" th:text="${feilmelding}"></p>
+<form action="innlogging" method="post">
+    <p>Mobil <input type="text" name="mobil"></p>
+    <p>Passord <input type="password" name="passord"></p>
+    <p><input type="submit" value="Logg inn"></p>
+</form>
+
+MERKNADER / KORREKSJONER TIL KARTLEGGINGEN
+------------------------------------------
+- Hellands repo er synkronisert i økt 2. Alle forelesningsprosjektene, inkl. f19a/f19b-losning og
+  f20a-c, ligger i Documents\GitHub\dat108-h2026\forelesninger\ (IKKE i IntelliJ_ws\).
+  «git show upstream/main» trengs ikke lenger.
+  f18a og f18b finnes fortsatt bare som -fyllinn, men f18a har ferdig model.addAttribute-mønster
+  i SjekkAarController:30-31, og f18b har det utkommentert i PersonController:32-33.
+- Mønsterkilder brukt i økt 2:
+    GET som viser skjema:       f18b PersonController:16-19, f18a SjekkAarController:11-14
+    Feil -> vis view direkte:   f20a BrukernavnController:32-44, f18a SjekkAarController:16-31
+    POST + guard + flash:       f19b-losning LoggInnController:18-28
+    Guard + model + view:       f19b-losning NettbutikkController:13-22
+    Utlogging:                  f19b-losning LoggInnController:30-36
+    th:each, |...|, POST-form:  f19b-losning nettbutikkView.html:9, 32-34, 45-47
+    POST-skjema, tekstfelt:     f17a-losning static\regskjema.html:10-15
+    Radioknapper:               f17b-losning static\sokeside.html:14-15, f17c kontovalg.html:14-16
+    th:value med ?.:            f18b personskjema.html:16-19
+  type="password" finnes ikke i forelesningsprosjektene (vanlig HTML).
+- Importene i skjelettet er ikke komplette (Model manglet i PaameldingController, GetMapping i
+  DeltagerlisteController og InnUtloggingController, service-/model-importer i
+  DeltagerlisteController). Manglende import betyr ikke at løsningen er feil. Alt+Enter.
+- B5 i kartleggingen sier thenComparing er F04. Feil: thenComparing finnes verken i repoet
+  eller slides F02-F05. Kun Comparator.comparing og sorted(comparator) er i kursmaterialet.
+- Ingen ferdig annotert Bean Validation-klasse finnes i kursmaterialet (f18b kun fyllinn).
+  Syntaks må tas fra F18 slide 20 + PersonValideringTest-meldingene.
+- P5: feilmeldingen trenger ikke være ordrett («Minst ...» i kartleggingen er for strengt).
+- f19b LogginnUtil tar HttpSession som parameter; skjelettet tar HttpServletRequest ->
+  getSession(false) i T05/T06, getSession(true) i T07.

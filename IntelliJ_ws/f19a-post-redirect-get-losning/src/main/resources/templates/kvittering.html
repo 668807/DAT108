@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kvittering</title>
+</head>
+<body>
+    <p th:text="${navn}"></p> <!-- Denne virker uten redirect hvis model.addAttr... -->
+                                <!-- Den virker også etter redirect hvis ra.addFlash... -->
+                                <!-- Blir da lagt på redirect-request sin model -->
+</body>
+</html>

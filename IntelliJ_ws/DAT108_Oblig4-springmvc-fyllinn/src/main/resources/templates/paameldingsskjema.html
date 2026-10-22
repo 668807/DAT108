@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<link href="css/simple.css" rel="stylesheet" type="text/css" />
+	<title>Påmelding</title>
+</head>
+
+<body>
+	<h2>Påmelding</h2>
+
+    <p style="color:red;" th:text="${feilmelding}"></p>
+	<form action="paamelding" method="post">
+		<p>Fornavn <input type="text" name="fornavn" th:value="${deltager?.fornavn}"></p>
+		<p>Etternavn <input type="text" name="etternavn" th:value="${deltager?.etternavn}"></p>
+		<p>Mobil <input type="text" name="mobil" th:value="${deltager?.mobil}"></p>
+		<p>Passord <input type="password" name="passord"></p>
+		<p>Passord repetert <input type="password" name="passordRepetert"></p>
+		<p>Kjønn
+			<input type="radio" name="kjonn" value="mann">Mann
+			<input type="radio" name="kjonn" value="kvinne">Kvinne</p>
+		<p> <input type="submit" value="Meld meg på"></p>
+	</form>
+
+
+</body>
+</html>

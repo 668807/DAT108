@@ -52,8 +52,9 @@ class KonkurranseController {
         };
 
         this.#visDeltager(deltager);
-        this.#validerStartnummer(event.target.elements["startnummer"]);
         event.target.reset();
+        this.#validerStartnummer(event.target.elements["startnummer"]);
+        this.#validerNavn(event.target.elements["navn"]);
     }
 
     /**
@@ -63,14 +64,13 @@ class KonkurranseController {
      */
     #validerStartnummer(target) {
         console.log(target.validity);
-
         let errormessage;
         if (this.#startnummerFinnes(target.valueAsNumber)) {
             errormessage = "Startnummer er i bruk";
         } else if (target.validity.badInput || target.validity.rangeUnderflow || target.validity.stepMismatch ) {
-            errormessage = "Startnummer må være et heltall større eller lik 1."
+            errormessage = "Startnummer må være et heltall større eller lik 1";
         } else if (target.validity.valueMissing) {
-            errormessage = "Startnummer er påkrevd"
+            errormessage = "Startnummer er påkrevd";
         } else {
             errormessage = "";
         }
@@ -85,16 +85,14 @@ class KonkurranseController {
      */
     #validerNavn(target) {
         console.log(target.validity);
-
         let errormessage;
         if (target.validity.patternMismatch) {
             errormessage = "Navn må bestå av ett eller flere delnavn skilt av mellomrom eller bindestrek og hvert delnavn må starte med stor forbokstav etterfulgt av kun små bokstaver";
         } else if (target.validity.valueMissing) {
             errormessage = "Navn mangler";
-        } else { (target.validity.customError)
+        } else {
             errormessage = "";
         }
-
         target.setCustomValidity(errormessage);
         target.title = errormessage; // For Chromium baserte nettleser
     }
@@ -119,10 +117,84 @@ class KonkurranseController {
         newRow.dataset.startnummer = deltager.startnummer;
         newRow.insertCell(-1).textContent = deltager.startnummer;
         newRow.insertCell(-1).textContent = deltager.navn;
-        newRow.insertCell(-1).innerHTML = "<td><input type='time' step='1'></td>";
-        newRow.insertCell(-1).innerHTML = "<td><input type='time' step='1'></td>";
-        newRow.insertCell(-1);
+
+        const startCelle = newRow.insertCell(-1);
+        startCelle.innerHTML = "<input type='time' step='1'>";
+        const startElement = startCelle.querySelector("input");
+
+        const sluttCelle = newRow.insertCell(-1);
+        sluttCelle.innerHTML = "<input type='time' step='1'>";
+        const sluttElement = sluttCelle.querySelector("input");
+
+        const lopstidElement = newRow.insertCell(-1);
+
+        startElement.addEventListener(
+            'input',
+            event => this.#validerTider(startElement, sluttElement, lopstidElement)
+        );
+
+        sluttElement.addEventListener(
+            'input',
+            event => this.#validerTider(startElement, sluttElement, lopstidElement)
+        );
+
         this.#tabellelement.classList.remove('hidden');
+    }
+
+    /**
+     * Validerer sluttid mot starttid og viser løpstid for en deltager.
+     *
+     * @param {HTMLInputElement} startElement
+     * @param {HTMLInputElement} sluttElement
+     * @param {HTMLTableCellElement} lopstidElement
+     */
+    #validerTider(startElement, sluttElement, lopstidElement) {
+        const start = startElement.valueAsNumber;
+        const slutt = sluttElement.valueAsNumber;
+
+        const beggeUtfylt = sluttElement.value !== "" && startElement.value !== "";
+
+        let errormessage;
+
+        if (beggeUtfylt && slutt <= start) {
+            errormessage = "Sluttid må være etter starttid";
+            lopstidElement.textContent = "";
+        } else if (beggeUtfylt) {
+            errormessage = "";
+            lopstidElement.textContent = this.#formaterTid(slutt - start);
+        } else {
+            errormessage = "";
+            lopstidElement.textContent = "";
+        }
+        sluttElement.setCustomValidity(errormessage);
+        sluttElement.title = errormessage;
+    }
+
+    /**
+     * Hjelpemetode for omgjøring av ett-sifret tall til tekst. (3 -> 03)
+     *
+     * @param {number} tall
+     * @returns {string}
+     */
+    #toSifre(tall) {
+        if (tall < 10) {
+            return `0${tall}`;
+        }
+        return `${tall}`;
+    }
+
+    /**
+     * Hjelpemetode for å formatere løpstid i millisekunder som tt:mm:ss
+     *
+     * @param {number} millisekunder
+     * @returns {string}
+     */
+    #formaterTid(millisekunder) {
+        const totalSekunder = millisekunder / 1000;
+        const timer = Math.trunc(totalSekunder / 3600);
+        const minutter = Math.trunc((totalSekunder % 3600) / 60);
+        const sekunder = totalSekunder % 60;
+        return `${this.#toSifre(timer)}:${this.#toSifre(minutter)}:${this.#toSifre(sekunder)}`;
     }
 
     /**
@@ -163,5 +235,5 @@ class KonkurranseController {
 }
 
 const formelement = document.forms["nydeltager"];
-const tabellelement = document.getElementById("deltagere")
+const tabellelement = document.getElementById("deltagere");
 new KonkurranseController(formelement, tabellelement);

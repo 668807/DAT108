@@ -1,0 +1,354 @@
+OBLIG4 SPRING MVC - KARTLEGGING (22.10.2026)
+=============================================
+Frist: søndag 25. oktober.
+Oppgavetekst: Innleveringer\Oblig4\DAT108_Oblig4 - Spring Web – Oppdatert.pdf (sist oppdatert 18.10)
+Prosjekt: IntelliJ_ws\DAT108_Oblig4-springmvc-fyllinn (Maven-rot, pom.xml ligger her)
+Status: utlevert skjelett, ingen egen kode skrevet ennå. 35 //TODO (stemmer med oppgaveteksten).
+Pakke: no.hvl.dat108.oblig4 (+ .controller, .model, .service)
+Oppsett: Spring Boot 4.1.1, Java 25, starter-webmvc + thymeleaf + validation.
+
+KILDER (FASIT-REKKEFØLGE)
+-------------------------
+1. Oppgaveteksten og kommentarene i skjelettet.
+2. Hellands forelesningsprosjekter (Documents\GitHub\dat108-h2026\forelesninger,
+   gjennomgått på commit 1670c6d «f20 Eksempler gjennomgått i timen», 22.10 kl. 09:56):
+     f19b-nettbutikk-losning      innlogging/utlogging, sesjon, flash-melding, redirect.
+                                  NÆRMESTE MØNSTER FOR HELE OBLIGEN.
+     f19a-post-redirect-get-losning   PRG, model vs. flash-attributt
+     f18b-validere-person-fyllinn     @ModelAttribute, @Valid, BindingResult, th:value med ?.
+                                      JUnit-test av Bean Validation (PersonValideringTest)
+     f18a-validere-fodselsaar-fyllinn guard-mønster, feilmelding i rødt, vis skjema på nytt
+     f20a-validator-som-service       guard-mønster (NB: DI/@Service brukes IKKE i Oblig4)
+     f17a-person-regskjema-losning    @ModelAttribute, POST + redirect
+     f20c-ansatt-avdeling-service     kun FirmaService.finnXxxMedId: Optional -> orElse(null),
+                                      samme kontrakt som T01 («null hvis ingen»)
+   Merk: f18a/f18b finnes fortsatt bare som -fyllinn. Annoteringsstil må tas fra
+   F18 slide 20, importene i skjelettet og meldingene i PersonValideringTest.
+   Ikke relevant for Oblig4: f20b/f20c ellers (JPA, repo, @Autowired), f06-losning.
+3. Slides F15-F19 (F20 trengs ikke i Oblig4, ifølge F18 slide 27).
+4. Thymeleaf Jukselapp for DAT108.pdf (18.10, 5 sider) i DAT108-rota. Nyere enn
+   «Thymeleaf CheatSheet for DAT108 1.pdf» i Slides\ og dekker th:utext, th:if/unless.
+
+Thymeleaf-attributter som faktisk brukes i kursmaterialet: th:text, th:each, th:value,
+th:block. I jukselappen i tillegg: th:utext, th:if, th:unless, th:switch, th:href,
+th:action, ?. , ?: , |...|, ${session.x}, ${param.x}.
+Ikke i kursmaterialet: th:checked, th:style, th:class/th:classappend. Flagg ved bruk.
+
+KRAV FRA OPPGAVETEKSTEN
+-----------------------
+Arkitektur
+  K1  Spring MVC + Spring Boot. Alle forespørsler, også redirects, går til controllere.
+      Redirect alltid til en URL som har en controller-metode, aldri til en .html/view.
+  K2  All HTML genereres fra Thymeleaf-maler (unntak: static\index.html finnes fra før).
+  K3  Bruk hjelpeklassene PassordService, LogginnService, DeltagerDbService (static-
+      metoder). Minst mulig teknisk detalj i controllerne.
+
+Påmelding
+  P1  Skjema: fornavn, etternavn, mobil (8 siffer), passord, passord repetert, kjønn
+      (radio mann/kvinne). Alle felt obligatoriske.
+  P2  All input valideres på tjeneren (obligatorisk). Klientside er frivillig.
+  P3  Gyldig: lagre Deltager med HASHET passord, logg inn automatisk (mobil = brukernavn),
+      redirect til bekreftelse.
+  P4  Bekreftelse (/paameldt): fornavn, etternavn, mobil, kjønn + lenke «Gå til
+      deltagerlisten». Krever innlogging.
+  P5  Ugyldig: skjema på nytt med feilmelding i rødt. Minst «Deltager med dette
+      mobilnummeret er allerede påmeldt» og «Påmeldingsdetaljer er ugyldige».
+      Gyldige verdier KAN stå igjen (screenshot s. 7: passordfelt tomme).
+
+Valideringsregler (tjener)
+  V1  Fornavn: 2-20 tegn, bokstaver inkl. æøåÆØÅ, bindestrek og mellomrom.
+      Første tegn stor bokstav.
+  V2  Etternavn: 2-20 tegn, bokstaver inkl. æøåÆØÅ og bindestrek, IKKE mellomrom.
+      Første tegn stor bokstav.
+  V3  Mobil: eksakt 8 siffer. Ikke allerede påmeldt (unik).
+  V4  Passord: minimumslengde (Feilmeldinger sier minst 4 tegn, alle tegn lov).
+  V5  Repetert passord likt passord (gjøres programmatisk, ferdig skrevet i
+      meldingFraInputValidering).
+  V6  Kjønn: «mann» eller «kvinne».
+
+Deltagerliste (/deltagerliste)
+  L1  Øverst: «Innlogget som: 90123456 / Arne Arnesen».
+  L2  Sortert stigende på fornavn, deretter etternavn.
+  L3  Innlogget deltager uthevet med grønn bakgrunn.
+  L4  Kolonner: kjønn (symbol ♂/♀), navn, mobil (formatert «901 23 456»).
+  L5  Krever innlogging. Uautorisert: til innloggingssiden med feilmelding.
+  L6  «Logg ut»-knapp: logger ut, til innloggingssiden med «Du er logget ut».
+
+Innlogging (/innlogging)
+  I1  Skjema: mobil + passord.
+  I2  Gyldig: logg inn, redirect til deltagerlisten.
+  I3  Ukjent mobil eller feil passord: skjema på nytt med «Ugyldig brukernavn og/eller
+      passord» i rødt.
+  I4  Alle andre omdirigeringer hit har passende feilmelding i rødt.
+  I5  Passordsjekk: finn deltager på mobil, deretter PassordService.erPassordKorrekt().
+
+Levering
+  Oblig4_grNN.zip i Canvas, gruppesett «DAT108 Oblig4 gr», 2-4 studenter.
+  Innhold: PDF (gruppemedlemmer + skjermbilder fra kjøring) og Maven Spring Boot-prosjektet.
+  Kjøring på egen maskin holder.
+
+URL-KART (utledet fra skjelett, index.html og oppgavetekst)
+-----------------------------------------------------------
+Metode  URL             Controller.metode                    Resultat
+------  --------------  -----------------------------------  ------------------------------------
+GET     /paamelding     PaameldingController.henteSkjema     view paameldingsskjema
+POST    /paamelding     PaameldingController.meldePaa        feil: view paameldingsskjema (ev. PRG,
+                                                             se B1) / OK: redirect:paameldt
+GET     /paameldt       PaameldingController.hentePaameldt   ikke innlogget: redirect:innlogging
+                                                             ellers view paameldingsbekreftelse
+GET     /deltagerliste  DeltagerlisteController.henteDeltagerliste
+                                                             ikke innlogget: redirect:innlogging
+                                                             ellers view deltagerliste
+GET     /innlogging     InnUtloggingController.henteSkjema   view logginn
+POST    /innlogging     InnUtloggingController.loggeInn      feil: redirect:innlogging (flash)
+                                                             OK: redirect:deltagerliste
+POST    /utlogging      InnUtloggingController.loggeUt       redirect:innlogging (flash)
+
+Viewnavn = filnavn i templates\ uten .html: paameldingsskjema, paameldingsbekreftelse,
+deltagerliste, logginn. NB: viewet heter «logginn», URL-en heter «innlogging».
+
+TODO-KART (35 stk.)
+-------------------
+ID   Fil:linje                                Hva                                  Fasit / mønster
+---  ---------------------------------------  -----------------------------------  ------------------------------
+service\DeltagerDbService.java
+T01  DeltagerDbService.java:23                finnDeltagerMedMobil, MED STREAMS    F04/F05: filter, findFirst,
+                                              (null hvis ingen)                    Optional.orElse (jf. f20c
+                                                                                   FirmaService)
+T02  DeltagerDbService.java:32                finnAlleSortertPaaFulltNavn, STREAMS F04/F05: sorted(Comparator),
+                                                                                   toList(). Se B5.
+T03  DeltagerDbService.java:42                erDeltagerPaameldt                   gjenbruk T01, eller anyMatch
+T04  DeltagerDbService.java:52                lagreDeltager                        List.add
+
+service\LogginnService.java (mønster: f19b LogginnUtil + F19 slide 26-28)
+T05  LogginnService.java:17                   erBrukerLoggetInn(request)           getSession(false), null-sjekk,
+                                                                                   getAttribute != null
+T06  LogginnService.java:27                   loggUtBruker(request)                getSession(false), invalidate
+T07  LogginnService.java:37                   loggInnBruker(request, deltager)     logg ut gammel sesjon FØRST
+                                                                                   (f19b «NB!»), ny sesjon,
+                                                                                   setAttribute, timeout (B6)
+
+model\DeltagerSkjema.java (F18 slide 20, imports: NotNull, Pattern, Size)
+T08  DeltagerSkjema.java:33                   fornavn  (V1)                        @NotNull + @Pattern/@Size,
+T09  DeltagerSkjema.java:36                   etternavn (V2)                       message = Feilmeldinger.X
+T10  DeltagerSkjema.java:39                   mobil (V3, formatdelen)              Konstantene øverst i klassen
+T11  DeltagerSkjema.java:42                   passord (V4)                         dekker V1-V3.
+T12  DeltagerSkjema.java:48                   kjonn (V6)
+
+controller\PaameldingController.java
+T13  PaameldingController.java:24             annotering GET /paamelding           @GetMapping
+T14  PaameldingController.java:27             henteSkjema                          returner viewnavn
+T15  PaameldingController.java:38             annotering POST /paamelding          @PostMapping
+T16  PaameldingController.java:48             resten av meldePaa                   guard (f18a/f20a):
+                                                                                   feilmelding != null -> skjema
+                                                                                   på nytt (B1). Ellers: hash
+                                                                                   passord, skjema.lagDeltager,
+                                                                                   lagre, logg inn, redirect.
+T17  PaameldingController.java:59             annotering GET /paameldt             @GetMapping
+T18  PaameldingController.java:62             hentePaameldt                        innlogget-sjekk + flash som
+                                                                                   f19b NettbutikkController
+
+controller\DeltagerlisteController.java (mangler import av GetMapping)
+T19  DeltagerlisteController.java:19          annotering GET /deltagerliste        @GetMapping
+T20  DeltagerlisteController.java:23          henteDeltagerliste                   innlogget-sjekk, model.addAttribute
+                                                                                   med sortert liste (T02), view
+
+controller\InnUtloggingController.java (mangler import av GetMapping)
+T21  InnUtloggingController.java:20           annotering GET /innlogging           @GetMapping
+T22  InnUtloggingController.java:23           henteSkjema                          returner viewnavn «logginn»
+T23  InnUtloggingController.java:35           annotering POST /innlogging          @PostMapping
+T24  InnUtloggingController.java:39           loggeInn                             I5 + I2/I3. Null-sjekk på deltager
+                                                                                   FØR erPassordKorrekt (B8).
+T25  InnUtloggingController.java:48           annotering POST /utlogging           @PostMapping
+T26  InnUtloggingController.java:51           loggeUt                              f19b loggUt: logg ut, flash
+                                                                                   UTLOGGET_MLD, redirect
+
+templates\paameldingsskjema.html
+T27  paameldingsskjema.html:11                feilmelding i rødt                   <p style="color:red;" th:text=...>
+T28  paameldingsskjema.html:13                skjemaet                             form action/method, name= MÅ
+                                                                                   matche feltnavn i DeltagerSkjema
+                                                                                   (passordRepetert!). th:value med
+                                                                                   ${deltager?.x} (F18 slide 22).
+templates\paameldingsbekreftelse.html
+T29  paameldingsbekreftelse.html:12           kvittering (navn, mobil, kjønn)      data fra sesjonen (B2)
+T30  paameldingsbekreftelse.html:14           lenke til deltagerlisten             <a href="deltagerliste">
+templates\logginn.html
+T31  logginn.html:11                          feilmelding i rødt                   f19b logginnView
+T32  logginn.html:13                          innloggingsskjema (mobil, passord)   name= matcher @RequestParam
+templates\deltagerliste.html
+T33  deltagerliste.html:9                     «Innlogget som: mobil / navn»        ${session....} (f19b)
+T34  deltagerliste.html:19                    tabellrader                          th:each på <tr> (F16 bokliste),
+                                                                                   kjønnsymbol krever th:utext (B4),
+                                                                                   grønn rad (B3)
+T35  deltagerliste.html:24                    skjema med «Logg ut»-knapp           POST-form som f19b
+
+BESLUTNINGER SOM MÅ TAS (gjør disse bevisst, før koding av aktuell TODO)
+------------------------------------------------------------------------
+B1  Hvordan meldePaa viser skjemaet på nytt ved feil (T16). Signaturen har ingen Model.
+    a) Legg til Model-parameter, addAttribute feilmelding, returner view direkte.
+       Gyldige verdier står igjen automatisk via @ModelAttribute("deltager").
+       Samme guard-mønster som f18a/f18b/f20a. ANBEFALT.
+    b) RedirectAttributes + flash + redirect:paamelding (ren PRG). Verdiene forsvinner med
+       mindre skjemaobjektet også flashes.
+    c) request.setAttribute. Virker, men ikke kursstil.
+B2  Hva som lagres i sesjonen ved innlogging (T07) og under hvilket navn.
+    Signaturen loggInnBruker(request, Deltager) peker mot å lagre hele Deltager-objektet.
+    Da har bekreftelsessiden (T29), «Innlogget som» (T33) og uthevingen (T34) det de trenger
+    uten nye oppslag. hentePaameldt har ingen Model, som også peker mot sesjonsdata.
+    Navnekollisjon: model-attributtet i meldePaa heter «deltager» (men er et DeltagerSkjema).
+    Velg sesjonsnavn bevisst og bruk ${session.<navn>} eksplisitt i malene.
+B3  Grønn utheving av innlogget rad (L3). simple.css har ingen klasse for dette.
+    a) To <tr>-varianter med th:if / th:unless (kun pensum-attributter, mer kode).
+    b) th:style eller th:class med betinget-operator (kortere, ikke i kursmaterialet: flagg).
+    Sammenligning bør skje på mobil (unik id), ikke på navn.
+B4  Kjønnsymbol: Deltager.getKjonnsymbol() returnerer HTML-entiteten "&#9794;".
+    th:text escaper & og viser teksten bokstavelig. th:utext tolker entiteten (jukselappen).
+    Trygt her fordi verdien er en konstant, ikke brukerinput. All brukerdata: th:text.
+B5  Sortering (T02). Deltager.paaFulltNavn (gitt) sammenligner «Fornavn Etternavn» som én
+    streng. Oppgaveteksten sier «fornavn, deretter etternavn». Nesten alltid likt resultat,
+    men ikke når fornavn har mellomrom (V1 tillater det):
+      fornavn «Per», etternavn «Olav-A»  vs.  fornavn «Per Olav», etternavn «B».
+    Alternativ som matcher teksten eksakt: Comparator.comparing(...).thenComparing(...) (F04).
+    Begge sorterer æøå i Unicode-rekkefølge (Å < Æ < Ø), ikke norsk. Utenfor pensum å fikse.
+B6  Sesjons-timeout. f19b bruker 20 sek kun for demo. Velg en fornuftig verdi (F19 slide 28).
+B7  Kjønn-radio på nytt forsøk. Å huske valgt verdi krever th:checked (ikke i kursmaterialet).
+    Enkleste: checked på «mann» som standard. Oppgaven sier «kan», ikke «skal».
+B8  De hardkodede deltagerne har passordhash «dummyhash» og kan aldri logge inn.
+    For testing må man melde på en ny deltager først. Alternativ: bytt «dummyhash» med
+    PassordService.lagHashetPassord("...") for testbrukere (ikke en TODO, valgfritt).
+    erPassordKorrekt kaster IllegalArgumentException ved null-argument: sjekk deltager != null først.
+B9  (Valgfritt, men eksamensrelevant) Trådsikkerhet. deltagerliste er en static ArrayList som
+    deles av alle requester (hver request kjøres i egen tråd). F19 slide 30: «Må sørge for
+    trådsikkerhet hvis data deles av flere brukere». Kobling til modul 2: synchronized
+    static-metoder, eller synkronisert/concurrent liste. Merk også sjekk-så-gjør-race:
+    erDeltagerPaameldt + lagreDeltager er to separate kall.
+B10 (Valgfritt) Klientsidevalidering (P2): HTML required/pattern, ev. JS fra modul 3
+    (setCustomValidity, særlig for repetert passord). Gjøres etter at tjenersiden virker.
+B11 (Valgfritt) JUnit-test av DeltagerSkjema etter mønster PersonValideringTest (f18b).
+    Oppgaveteksten nevner det som testmetode.
+
+VIKTIGE FALLGRUVER (konsept, ikke løsning)
+-------------------------------------------
+- @Pattern og @Size regner null som GYLDIG. Uten @NotNull slipper et manglende felt gjennom.
+- @Pattern matcher hele strengen (^ og $ er overflødige, men ufarlige).
+- BindingResult må stå rett etter @Valid-parameteren i signaturen (skjelettet har det riktig).
+  Ellers kaster Spring unntak i stedet for å la deg håndtere feilen.
+- meldingFraInputValidering sjekker bindingResult FØRST. Det sikrer at getPassord() ikke er
+  null før equals kalles. Ikke endre rekkefølgen.
+- Feltnavn i HTML (name=) må være identiske med egenskapene i DeltagerSkjema, ellers bindes
+  ingenting og alt blir «ugyldig».
+- «redirect:x» er en URL (ny request), «x» er et viewnavn. Model-attributter overlever ikke
+  redirect; flash-attributter gjør det (F19 slide 7-9).
+- Passordfelt skal ikke fylles ut igjen med th:value.
+- loggInn uten å invalidere eksisterende sesjon først gir risiko for sesjonsfiksering
+  (begrunnelsen for «NB!» i f19b LogginnUtil).
+- Bruk Feilmeldinger-konstantene, ikke hardkodede strenger.
+- Ikke gjør hjelpeklassene til @Service med DI (det er F20/Oblig5). Oppgaven sier static.
+
+ANBEFALT REKKEFØLGE
+-------------------
+0. Oppsett: åpne DAT108_Oblig4-springmvc-fyllinn i IntelliJ (Maven-import), kjør Oblig4App,
+   sjekk at localhost:8080 viser index.
+1. T01-T04  DeltagerDbService (ren Java, repetisjon streams). Ev. rask test i main/JUnit.
+2. T08-T12  DeltagerSkjema-annoteringer. Ev. B11 (JUnit) med en gang.
+3. T05-T07  LogginnService. Ta B2 og B6 her.
+4. T13-T14, T27-T28  GET /paamelding + skjema. Sjekk at siden vises.
+5. T15-T16  POST /paamelding. Ta B1. Test alle feilgrener (testmatrise under).
+6. T17-T18, T29-T30  /paameldt + bekreftelse. Nå virker hele påmeldingsflyten.
+7. T19-T20, T33-T35  /deltagerliste. Ta B3, B4, B5.
+8. T21-T26, T31-T32  innlogging og utlogging. Ta B8.
+9. Valgfritt: B9, B10, B11.
+10. Levering: skjermbilder til PDF, sjekkliste under.
+
+TESTMATRISE (manuell, også grunnlag for skjermbilder)
+-----------------------------------------------------
+Påmelding
+  [ ] Gyldig påmelding -> /paameldt med riktige data. URL er /paameldt (PRG). F5 gir ikke
+      dobbeltpåmelding.
+  [ ] Fornavn: «a», «Ab1», 21 tegn, «arne» -> ugyldig. «Anne-Lise», «Per Olav» -> gyldig.
+  [ ] Etternavn med mellomrom -> ugyldig. «Hansen-Berg» -> gyldig.
+  [ ] Mobil: 7 siffer, 9 siffer, «1234567a» -> ugyldig.
+  [ ] Mobil som finnes (12345678) -> «allerede påmeldt»-meldingen.
+  [ ] Passord for kort, ulike passord -> feilmelding.
+  [ ] Kjønn manipulert i DevTools (value="annet") eller fjernet -> ugyldig, ingen krasj.
+  [ ] Felt fjernet helt fra HTML (null-parametre) -> feilmelding, ikke Whitelabel/500.
+  [ ] Gyldige verdier står igjen, passordfelt tomme.
+Tilgang
+  [ ] GET /deltagerliste uten innlogging -> /innlogging + KREVER_INNLOGGET_MLD.
+  [ ] GET /paameldt uten innlogging -> samme.
+Innlogging
+  [ ] Ukjent mobil -> UGYLDIG_BRUKERNAVN_PASSORD_MLD. Kjent mobil, feil passord -> samme.
+  [ ] Riktig -> /deltagerliste, «Innlogget som» riktig, sortert, egen rad grønn, symboler vises.
+Utlogging
+  [ ] Logg ut -> /innlogging + «Du er logget ut».
+  [ ] Etter utlogging: tilbakeknapp + F5 på /deltagerliste -> krever innlogging.
+  [ ] Sesjonen utløper etter valgt timeout.
+
+LEVERING - SJEKKLISTE
+---------------------
+[ ] Ingen //TODO igjen (View | Tool Window | TODO).
+[ ] Fjern testkode/IO.println brukt til feilsøking.
+[ ] PDF: gruppemedlemmer + skjermbilder (påmelding, feilmelding påmelding, bekreftelse,
+    deltagerliste med grønn rad, innlogging med feilmelding, utlogget).
+[ ] Rens prosjektmappa: Get-ChildItem -Recurse -Force -Include *.md, .claude (tom utskrift).
+[ ] Ikke ta med target\ og .idea\ i zip (ikke krav, men ryddig).
+[ ] Zip: Oblig4_grNN.zip, levert i gruppesettet «DAT108 Oblig4 gr».
+
+EKSAMENSRELEVANS
+----------------
+Må kunnes utenat (håndskrevet):
+  @Controller, @GetMapping/@PostMapping, @RequestParam, returner viewnavn vs. «redirect:url»
+  Model.addAttribute, RedirectAttributes.addFlashAttribute
+  @Valid @ModelAttribute + BindingResult (hasErrors), @NotNull, @Size(min, max), @Pattern(regexp)
+    med message
+  request.getSession(false/true), setAttribute, getAttribute (+ cast), invalidate,
+    setMaxInactiveInterval
+  Thymeleaf: th:text, th:each, th:if/th:unless, th:value, ${session.x}, ${param.x}, ?. og |...|
+  Streams: filter, findFirst, orElse, anyMatch, sorted(Comparator), toList()
+Må kunne forklare:
+  PRG og dobbeltposting, scopes (request/model, flash, session), hvorfor tjenervalidering,
+  whitelisting vs. blacklisting, escaping (th:text vs. th:utext), hvorfor invalidere sesjon ved
+  innlogging, hvorfor hashe passord, trådsikkerhet for delte data i webapp.
+Slås normalt opp: eksakte regex-uttrykk, PassordService-innmat, pom-avhengigheter,
+  sjeldne Thymeleaf-attributter.
+Øvingsform: skriv LogginnService og en controller-metode med guard for hånd, uten IDE.
+
+FORSLAG TIL ENDRINGER I CLAUDE.md (lim inn manuelt)
+---------------------------------------------------
+1) Erstatt seksjonen «## Aktiv oblig» med:
+
+## Aktiv oblig
+
+**Oblig4 Spring MVC**, prosjekt `IntelliJ_ws\DAT108_Oblig4-springmvc-fyllinn`,
+frist søndag 25. oktober.
+Oppgavetekst: Innleveringer\Oblig4\DAT108_Oblig4 - Spring Web – Oppdatert.pdf
+Kartlegging: Innleveringer\Oblig4\Oblig4_kartlegging.txt (les før første svar om obligen)
+Statusfil: Innleveringer\Oblig4\Oblig4_status.txt
+Status: se statusfila.
+
+2) Legg til etter «## Kodestil JavaScript (Wang-Kileng)»:
+
+## Kodestil Spring MVC / Thymeleaf (Helland, F15-F20)
+
+Fasit: f19b-nettbutikk-losning, f19a, f18a, f18b, f20a i Hellands repo, og
+«Thymeleaf Jukselapp for DAT108.pdf» (18.10).
+- Controller: @Controller, @GetMapping/@PostMapping("/sti"), returner viewnavn eller
+  "redirect:sti". Guard først: sjekk feil/innlogging, håndter og returner tidlig.
+- POST som endrer noe avsluttes med redirect (PRG). Meldinger til neste request:
+  RedirectAttributes.addFlashAttribute.
+- Skjema: Form Object (XxxSkjema) med @Valid @ModelAttribute("navn") + BindingResult rett etter.
+  Bean Validation: @NotNull + @Size/@Pattern med message fra konstantklasse.
+- Sesjon: HttpServletRequest.getSession(false/true), setAttribute, invalidate,
+  setMaxInactiveInterval. Invalider gammel sesjon før innlogging.
+- Thymeleaf: th:text (escaper, standard), th:utext kun for betrodd HTML, th:each, th:if/unless,
+  th:value med ?. ved gjentatt skjema, ${session.x}, |...|. Feilmelding:
+  <p style="color:red;" th:text="${feilmelding}">.
+- Brukt i kursmaterialet: th:text, th:each, th:value, th:block. Annet: flagg.
+- Ikke DI/@Service/JPA før oppgaven ber om det (F20, Oblig5).
+
+ANDRE MERKNADER
+---------------
+- paameldingsskjema.html mangler <meta charset="UTF-8"> i <head> (de andre malene har den).
+- Testklassen heter Oblig4SpringmvcLosning1ApplicationTests (rest fra lærers løsning, ufarlig).
+- simple.css har ingen klasser for rød tekst eller grønn rad.
+- Repoet 668807/DAT108 er offentlig og inneholder oblig-besvarelser.

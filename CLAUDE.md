@@ -57,7 +57,7 @@ umiddelbart og uten diskusjon.
 |---|---|
 | Oblig1 Lambda/streams | søn 06.09 (levert) |
 | Oblig2 Tråder | søn 20.09 (levert) |
-| Oblig3 JavaScript | **tirs 06.10** |
+| Oblig3 JavaScript | **søn 11.10** (utsatt fra tirs 06.10, gjelder alle) |
 | Oblig4 Spring MVC (SSR) | søn 25.10 |
 | Oblig5 REST | tirs 10.11 |
 | Q&A | man 07.12 |
@@ -231,10 +231,10 @@ framfor å gjette.
 ## Aktiv oblig
 
 **Oblig3 JavaScript**, prosjekt `IntelliJ_ws\DAT108_Oblig3`, frist
-tirsdag 6. oktober.
+søndag 11. oktober (utsatt fra 6. oktober).
 Oppgavetekst: Innleveringer\Oblig3\DAT108 Oblig3 - JavaScript.pdf
 Statusfil: Innleveringer\Oblig3\Oblig3_status.txt
-Status: se statusfila (del A nesten ferdig per 30.09).
+Status: se statusfila (del A ferdig per 05.10).
 
 ## Statusfiler                                                                                                                                                                 
 Hver oblig har én statusfil (`.txt`) i `Innleveringer\ObligN\` med

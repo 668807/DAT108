@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="css/simple.css">
+	<title>Deltagerliste</title>
+</head>
+<body>
+
+	<p th:text="|Innlogget som: ${session.innloggetDeltager.mobil} / ${session.innloggetDeltager.fulltNavn}|"></p>
+
+	<h2>Deltagerliste</h2>
+	<table>
+		<tr>
+			<th>Kjønn</th>
+			<th align="left">Navn</th>
+			<th align="left">Mobil</th>
+		</tr>
+
+		<th:block th:each="d : ${deltagere}">
+			<tr th:if="${d.mobil == session.innloggetDeltager.mobil}" style="background-color:lightgreen; color:black;">
+				<td th:utext="${d.kjonnsymbol}"></td>
+				<td th:text="${d.fulltNavn}"></td>
+				<td th:text="${d.mobilFormatert}"></td>
+			</tr>
+			<tr th:unless="${d.mobil == session.innloggetDeltager.mobil}">
+				<td th:utext="${d.kjonnsymbol}"></td>
+				<td th:text="${d.fulltNavn}"></td>
+				<td th:text="${d.mobilFormatert}"></td>
+			</tr>
+		</th:block>
+
+	</table>
+	<br>
+
+	<form action="utlogging" method="post">
+		<input type="submit" value="Logg ut">
+	</form>
+
+</body>
+</html>

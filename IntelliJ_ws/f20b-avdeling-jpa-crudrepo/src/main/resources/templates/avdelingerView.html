@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="simple.css">
+    <title>Avdelinger</title>
+</head>
+<body>
+    <p th:each="avdeling : ${avdelinger}" th:text="${avdeling}">
+</body>
+</html>

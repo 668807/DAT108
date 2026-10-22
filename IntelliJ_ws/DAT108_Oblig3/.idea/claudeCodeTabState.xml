@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ClaudeCodeTabState">
+    <option name="tabSessions">
+      <map>
+        <entry key="0">
+          <value>
+            <TabSessionState>
+              <option name="projectPath" value="C:\Users\3nd\Documents\HVL\7sem\DAT108\IntelliJ_ws\DAT108_Oblig3" />
+              <option name="provider" value="claude" />
+              <option name="sessionId" value="c492c01e-c235-4861-a415-a17c7d6b2a62" />
+              <option name="cwd" value="C:\Users\3nd\Documents\HVL\7sem\DAT108\IntelliJ_ws\DAT108_Oblig3" />
+              <option name="model" value="claude-opus-5-5[1m]" />
+              <option name="permissionMode" value="default" />
+            </TabSessionState>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

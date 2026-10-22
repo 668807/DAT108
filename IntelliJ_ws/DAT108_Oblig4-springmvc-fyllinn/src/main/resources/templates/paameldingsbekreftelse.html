@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/simple.css">
+<title>Påmeldingsbekreftelse</title>
+</head>
+<body>
+	<h2>Påmeldingsbekreftelse</h2>
+	<p>Påmeldingen er mottatt for</p>
+
+	<p th:text="${session.innloggetDeltager.fornavn}"></p>
+	<p th:text="${session.innloggetDeltager.etternavn}"></p>
+	<p th:text="${session.innloggetDeltager.mobil}"></p>
+	<p th:text="${session.innloggetDeltager.kjonn}"></p>
+
+	<a href="deltagerliste">Gå til deltagerlisten</a>
+
+</body>
+</html>
